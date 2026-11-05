@@ -57,8 +57,10 @@ class Shortcode {
 			'i18n'        => $this->strings(),
 		);
 
+		// Force the light palette — the widget renders inside the theme's white
+		// card, so a visitor's OS dark-mode preference must not flip it dark.
 		return sprintf(
-			'<div id="%1$s" class="sk-widget-root" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
+			'<div id="%1$s" class="sk-widget-root" data-sk-theme="light" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
 			esc_attr( $mount_id ),
 			esc_attr( wp_json_encode( $config ) ),
 			esc_html__( 'This booking widget needs JavaScript enabled to work — please contact us directly to book.', 'slotkeeper' )
@@ -66,9 +68,12 @@ class Shortcode {
 	}
 
 	private function enqueue_assets(): void {
+		// Cormorant Garamond (display) + Raleway (body) — the salon theme's
+		// fonts, so the widget matches whether or not the host theme already
+		// loads them (WordPress de-dupes identical Google Fonts requests).
 		wp_enqueue_style(
 			'slotkeeper-widget-fonts',
-			'https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap',
+			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Raleway:wght@400;500;600;700&display=swap',
 			array(),
 			null
 		);
