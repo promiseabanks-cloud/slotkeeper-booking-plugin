@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       SlotKeeper
  * Description:       A configurable booking engine — appointments, reservations, rentals, or classes — for any business running WordPress.
- * Version:           0.3.2
+ * Version:           0.4.0
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Banks Solution
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'SLOTKEEPER_VERSION', '0.3.2' );
-define( 'SLOTKEEPER_DB_VERSION', '3' ); // v3: sk_notifications_log.error_message widened to TEXT — a Meta API error (371 chars) silently failed to insert against the old VARCHAR(255).
+define( 'SLOTKEEPER_VERSION', '0.4.0' );
+define( 'SLOTKEEPER_DB_VERSION', '4' ); // v4: sk_payments.total_minor added — records the full price alongside amount_minor so a deposit's outstanding balance is derivable. v3: sk_notifications_log.error_message widened to TEXT — a Meta API error (371 chars) silently failed to insert against the old VARCHAR(255).
 define( 'SLOTKEEPER_PLUGIN_FILE', __FILE__ );
 define( 'SLOTKEEPER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLOTKEEPER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

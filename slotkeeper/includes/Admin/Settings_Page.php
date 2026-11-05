@@ -8,8 +8,8 @@ namespace SlotKeeper\Admin;
 use SlotKeeper\Notifications\Email_Channel;
 use SlotKeeper\Notifications\SMS_Channel;
 use SlotKeeper\Notifications\WhatsApp_Channel;
-use SlotKeeper\Payments\Flutterwave_Gateway;
-use SlotKeeper\Payments\Paystack_Gateway;
+use SlotKeeper\Payments\Gateway_Registry;
+use SlotKeeper\Support\Deposit;
 use SlotKeeper\Support\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,7 +31,7 @@ class Settings_Page {
 
 		$settings = Settings::all();
 		$channels = array( new Email_Channel(), new WhatsApp_Channel(), new SMS_Channel() );
-		$gateways = array( new Paystack_Gateway(), new Flutterwave_Gateway() );
+		$gateways = Gateway_Registry::all();
 
 		?>
 		<div class="wrap sk-wrap">
@@ -93,13 +93,43 @@ class Settings_Page {
 						<td>
 							<select id="sk_payment_gateway" name="payment_gateway">
 								<option value="none" <?php selected( $settings['payment_gateway'], 'none' ); ?>><?php esc_html_e( 'None — bookings never require payment', 'slotkeeper' ); ?></option>
+								<?php
+								$gateway_labels = array(
+									'paystack'    => 'Paystack',
+									'stripe'      => 'Stripe',
+									'paypal'      => 'PayPal',
+									'flutterwave' => 'Flutterwave',
+								);
+								?>
 								<?php foreach ( $gateways as $gateway ) : ?>
 									<option value="<?php echo esc_attr( $gateway->key() ); ?>" <?php selected( $settings['payment_gateway'], $gateway->key() ); ?> <?php disabled( ! $gateway->is_configured() ); ?>>
-										<?php echo esc_html( ucfirst( $gateway->key() ) ); ?>
+										<?php echo esc_html( $gateway_labels[ $gateway->key() ] ?? ucfirst( $gateway->key() ) ); ?>
 										<?php echo $gateway->is_configured() ? '' : esc_html__( ' (not configured yet)', 'slotkeeper' ); ?>
 									</option>
 								<?php endforeach; ?>
 							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sk_paypal_mode"><?php esc_html_e( 'PayPal environment', 'slotkeeper' ); ?></label></th>
+						<td>
+							<select id="sk_paypal_mode" name="paypal_mode">
+								<option value="live" <?php selected( $settings['paypal_mode'], 'live' ); ?>><?php esc_html_e( 'Live', 'slotkeeper' ); ?></option>
+								<option value="sandbox" <?php selected( $settings['paypal_mode'], 'sandbox' ); ?>><?php esc_html_e( 'Sandbox (testing)', 'slotkeeper' ); ?></option>
+							</select>
+							<p class="description"><?php esc_html_e( 'Only applies when PayPal is the selected gateway. Use Sandbox with PayPal sandbox credentials while testing.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Taken at booking', 'slotkeeper' ); ?></th>
+						<td>
+							<select id="sk_deposit_type" name="deposit_type">
+								<option value="<?php echo esc_attr( Deposit::TYPE_FULL ); ?>" <?php selected( $settings['deposit_type'], Deposit::TYPE_FULL ); ?>><?php esc_html_e( 'Full price', 'slotkeeper' ); ?></option>
+								<option value="<?php echo esc_attr( Deposit::TYPE_PERCENT ); ?>" <?php selected( $settings['deposit_type'], Deposit::TYPE_PERCENT ); ?>><?php esc_html_e( 'A percentage deposit', 'slotkeeper' ); ?></option>
+								<option value="<?php echo esc_attr( Deposit::TYPE_FIXED ); ?>" <?php selected( $settings['deposit_type'], Deposit::TYPE_FIXED ); ?>><?php esc_html_e( 'A fixed-amount deposit', 'slotkeeper' ); ?></option>
+							</select>
+							<input type="number" id="sk_deposit_value" name="deposit_value" min="0" step="0.01" style="width:90px;margin-left:8px;" value="<?php echo esc_attr( (string) $settings['deposit_value'] ); ?>">
+							<p class="description"><?php esc_html_e( 'How much a customer pays online to confirm a booking; any balance is collected in person. For a percentage, enter the percent (e.g. 50). For a fixed deposit, enter the amount in your currency (e.g. 30). Ignored when "Full price" is selected, or when a booking has no price.', 'slotkeeper' ); ?></p>
 						</td>
 					</tr>
 					<tr>
@@ -161,6 +191,17 @@ class Settings_Page {
 			$admin_whatsapp = Settings::get( 'admin_whatsapp_number', '' ); // Keep the existing value rather than saving something broken.
 		}
 
+		$deposit_type = sanitize_key( wp_unslash( $_POST['deposit_type'] ?? Deposit::TYPE_FULL ) );
+		if ( ! in_array( $deposit_type, Deposit::TYPES, true ) ) {
+			$deposit_type = Deposit::TYPE_FULL;
+		}
+		$deposit_value = max( 0, (float) ( $_POST['deposit_value'] ?? 0 ) );
+		if ( Deposit::TYPE_PERCENT === $deposit_type ) {
+			$deposit_value = min( 100, $deposit_value ); // A deposit can't exceed 100% of the price.
+		}
+
+		$paypal_mode = 'sandbox' === sanitize_key( wp_unslash( $_POST['paypal_mode'] ?? 'live' ) ) ? 'sandbox' : 'live';
+
 		Settings::update(
 			array(
 				'business_name'             => sanitize_text_field( wp_unslash( $_POST['business_name'] ?? '' ) ),
@@ -169,6 +210,9 @@ class Settings_Page {
 				'notifications'             => $notifications,
 				'admin_whatsapp_number'     => $admin_whatsapp,
 				'payment_gateway'           => sanitize_key( wp_unslash( $_POST['payment_gateway'] ?? 'none' ) ),
+				'paypal_mode'               => $paypal_mode,
+				'deposit_type'              => $deposit_type,
+				'deposit_value'             => $deposit_value,
 				'manage_booking_page_id'    => absint( $_POST['manage_booking_page_id'] ?? 0 ),
 				'delete_data_on_uninstall'  => ! empty( $_POST['delete_data_on_uninstall'] ),
 			)

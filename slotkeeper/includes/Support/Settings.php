@@ -47,7 +47,10 @@ class Settings {
 				'whatsapp' => false,
 				'sms'      => false,
 			),
-			'payment_gateway'        => 'none', // none|paystack|flutterwave
+			'payment_gateway'        => 'none', // none|paystack|stripe|paypal|flutterwave
+			'paypal_mode'            => 'live', // live|sandbox — PayPal only; not a secret.
+			'deposit_type'           => 'percent', // full|percent|fixed — what to collect at booking time.
+			'deposit_value'          => 50, // percent (1–100) for 'percent', or a major-unit amount for 'fixed'.
 			'manage_booking_page_id' => 0, // WP page containing [slotkeeper_manage_booking] — 0 = not set, no cancel link sent.
 			'admin_whatsapp_number'  => '', // Founder's own number for new-booking alerts — empty = alerts off.
 			'delete_data_on_uninstall' => false,

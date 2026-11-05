@@ -17,6 +17,8 @@
 namespace SlotKeeper\Admin;
 
 use SlotKeeper\Payments\Paystack_Gateway;
+use SlotKeeper\Payments\PayPal_Gateway;
+use SlotKeeper\Payments\Stripe_Gateway;
 use SlotKeeper\Calendar\Google_Calendar_Sync;
 use SlotKeeper\Notifications\WhatsApp_Channel;
 use SlotKeeper\Support\Secrets;
@@ -39,10 +41,14 @@ class Integrations_Page {
 		}
 
 		$paystack = new Paystack_Gateway();
+		$stripe   = new Stripe_Gateway();
+		$paypal   = new PayPal_Gateway();
 		$whatsapp = new WhatsApp_Channel();
 		$calendar = new Google_Calendar_Sync();
 
-		$webhook_url = rest_url( 'slotkeeper/v1/webhooks/paystack' );
+		$webhook_url        = rest_url( 'slotkeeper/v1/webhooks/paystack' );
+		$stripe_webhook_url = rest_url( 'slotkeeper/v1/webhooks/stripe' );
+		$paypal_webhook_url = rest_url( 'slotkeeper/v1/webhooks/paypal' );
 
 		?>
 		<div class="wrap sk-wrap">
@@ -67,6 +73,67 @@ class Integrations_Page {
 						<td>
 							<input type="text" readonly class="regular-text" style="width:100%;max-width:480px;" value="<?php echo esc_attr( $webhook_url ); ?>" onclick="this.select();">
 							<p class="description"><?php esc_html_e( 'Paste this into Paystack → Settings → API Keys & Webhooks → Webhook URL. SlotKeeper can\'t register it there for you — Paystack requires that to be set from their own dashboard.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php esc_html_e( 'Stripe', 'slotkeeper' ); ?> <?php $this->status_badge( $stripe->is_configured() ); ?></h2>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><label for="sk_stripe_key"><?php esc_html_e( 'Secret key', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="password" id="sk_stripe_key" name="stripe_secret_key" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::STRIPE_SECRET_KEY, 'SLOTKEEPER_STRIPE_SECRET_KEY' ) ? esc_attr__( '•••••••••• (saved — leave blank to keep)', 'slotkeeper' ) : 'sk_live_...'; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="stripe_secret_key_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+							<p class="description"><?php esc_html_e( 'From your Stripe dashboard → Developers → API keys. Use the Secret key (sk_live_… or sk_test_…).', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sk_stripe_whsec"><?php esc_html_e( 'Webhook signing secret', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="password" id="sk_stripe_whsec" name="stripe_webhook_secret" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::STRIPE_WEBHOOK_SECRET, 'SLOTKEEPER_STRIPE_WEBHOOK_SECRET' ) ? esc_attr__( '•••••••••• (saved — leave blank to keep)', 'slotkeeper' ) : 'whsec_...'; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="stripe_webhook_secret_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+							<p class="description"><?php esc_html_e( 'Optional but recommended. In Stripe → Developers → Webhooks, add an endpoint for the "checkout.session.completed" event pointing at the URL below, then paste its signing secret here. Without it, payment is still confirmed when the customer returns.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Webhook URL', 'slotkeeper' ); ?></th>
+						<td>
+							<input type="text" readonly class="regular-text" style="width:100%;max-width:480px;" value="<?php echo esc_attr( $stripe_webhook_url ); ?>" onclick="this.select();">
+							<p class="description"><?php esc_html_e( 'Paste this into Stripe → Developers → Webhooks → Add endpoint, subscribed to "checkout.session.completed".', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+				</table>
+
+				<h2><?php esc_html_e( 'PayPal', 'slotkeeper' ); ?> <?php $this->status_badge( $paypal->is_configured() ); ?></h2>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><label for="sk_paypal_client"><?php esc_html_e( 'Client ID', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="text" id="sk_paypal_client" name="paypal_client_id" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::PAYPAL_CLIENT_ID, 'SLOTKEEPER_PAYPAL_CLIENT_ID' ) ? esc_attr__( '•••••••••• (saved — leave blank to keep)', 'slotkeeper' ) : ''; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="paypal_client_id_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sk_paypal_secret"><?php esc_html_e( 'Secret', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="password" id="sk_paypal_secret" name="paypal_secret" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::PAYPAL_SECRET, 'SLOTKEEPER_PAYPAL_SECRET' ) ? esc_attr__( '•••••••••• (saved — leave blank to keep)', 'slotkeeper' ) : ''; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="paypal_secret_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+							<p class="description"><?php esc_html_e( 'Client ID and Secret both from developer.paypal.com → Apps & Credentials. Match these to the Live/Sandbox environment you chose in Settings.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sk_paypal_webhook_id"><?php esc_html_e( 'Webhook ID', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="text" id="sk_paypal_webhook_id" name="paypal_webhook_id" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::PAYPAL_WEBHOOK_ID, 'SLOTKEEPER_PAYPAL_WEBHOOK_ID' ) ? esc_attr__( '•••••••••• (saved — leave blank to keep)', 'slotkeeper' ) : ''; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="paypal_webhook_id_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+							<p class="description"><?php esc_html_e( 'Optional. In PayPal → your app → Webhooks, add the URL below for the "PAYMENT.CAPTURE.COMPLETED" event, then paste the Webhook ID here so SlotKeeper can verify it. Without it, payment is still confirmed when the customer returns.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Webhook URL', 'slotkeeper' ); ?></th>
+						<td>
+							<input type="text" readonly class="regular-text" style="width:100%;max-width:480px;" value="<?php echo esc_attr( $paypal_webhook_url ); ?>" onclick="this.select();">
+							<p class="description"><?php esc_html_e( 'Paste this into PayPal → your app → Webhooks, subscribed to "PAYMENT.CAPTURE.COMPLETED".', 'slotkeeper' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -121,6 +188,11 @@ class Integrations_Page {
 
 		$fields = array(
 			'paystack_secret_key'          => Secrets::PAYSTACK_SECRET_KEY,
+			'stripe_secret_key'            => Secrets::STRIPE_SECRET_KEY,
+			'stripe_webhook_secret'        => Secrets::STRIPE_WEBHOOK_SECRET,
+			'paypal_client_id'             => Secrets::PAYPAL_CLIENT_ID,
+			'paypal_secret'                => Secrets::PAYPAL_SECRET,
+			'paypal_webhook_id'            => Secrets::PAYPAL_WEBHOOK_ID,
 			'whatsapp_meta_token'          => Secrets::WHATSAPP_TOKEN,
 			'whatsapp_meta_phone_id'       => Secrets::WHATSAPP_PHONE_ID,
 			'google_service_account_json'  => Secrets::GOOGLE_SERVICE_ACCOUNT_JSON,
