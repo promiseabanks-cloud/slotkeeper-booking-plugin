@@ -31,7 +31,8 @@ class Email_Channel implements Notification_Channel {
 		$sent = wp_mail(
 			$customer['email'],
 			Message_Builder::subject( $template ),
-			Message_Builder::body( $booking, $template )
+			Message_Builder::html_body( $booking, $template ),
+			array( 'Content-Type: text/html; charset=UTF-8' )
 		);
 
 		return $sent ? true : new \WP_Error( 'sk_wp_mail_failed', __( 'wp_mail() reported failure.', 'slotkeeper' ) );

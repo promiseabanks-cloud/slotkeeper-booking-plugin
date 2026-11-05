@@ -41,6 +41,16 @@ class Settings {
 			'business_name'         => get_bloginfo( 'name' ),
 			'timezone'               => wp_timezone_string(),
 			'currency'               => 'NGN',
+			'widget_theme'           => 'light', // light|dark|auto — colour scheme the public booking widget renders in.
+			// Business details shown in the footer of customer emails. All optional;
+			// a row is only printed when its value is set.
+			'business_address'       => '',
+			'business_phone'         => '',
+			'business_email'         => '', // Reply-to / contact address; falls back to the WP admin email in emails if left blank.
+			'business_hours'         => '',
+			'social_instagram'       => '',
+			'social_tiktok'          => '',
+			'social_facebook'        => '',
 			'enabled_booking_types'  => array( 'appointments' ),
 			'notifications'          => array(
 				'email'    => true,

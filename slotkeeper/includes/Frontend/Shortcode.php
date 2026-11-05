@@ -57,13 +57,23 @@ class Shortcode {
 			'i18n'        => $this->strings(),
 		);
 
-		// Force the light palette — the widget renders inside the theme's white
-		// card, so a visitor's OS dark-mode preference must not flip it dark.
+		// Colour scheme is a site-owner setting (SlotKeeper > Settings):
+		//   light — always the cream/ink light skin (the default)
+		//   dark  — always the deep-ink dark skin
+		//   auto  — follow each visitor's OS light/dark preference
+		// The attribute drives the palette in widget.css; "auto" there keys off
+		// prefers-color-scheme, so no JS is needed to switch.
+		$theme = \SlotKeeper\Support\Settings::get( 'widget_theme', 'light' );
+		if ( ! in_array( $theme, array( 'light', 'dark', 'auto' ), true ) ) {
+			$theme = 'light';
+		}
+
 		return sprintf(
-			'<div id="%1$s" class="sk-widget-root" data-sk-theme="light" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
+			'<div id="%1$s" class="sk-widget-root" data-sk-theme="%4$s" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
 			esc_attr( $mount_id ),
 			esc_attr( wp_json_encode( $config ) ),
-			esc_html__( 'This booking widget needs JavaScript enabled to work — please contact us directly to book.', 'slotkeeper' )
+			esc_html__( 'This booking widget needs JavaScript enabled to work — please contact us directly to book.', 'slotkeeper' ),
+			esc_attr( $theme )
 		);
 	}
 

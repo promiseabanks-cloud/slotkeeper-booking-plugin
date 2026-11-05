@@ -4,7 +4,7 @@ Tags: booking, appointments, reservations, rentals, classes
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,23 @@ To enable WhatsApp or Paystack, add the relevant constants to `wp-config.php`
 real key values anywhere).
 
 == Changelog ==
+
+= 0.7.2 =
+* Dark theme. A new "Booking widget theme" setting (SlotKeeper > Settings) picks
+  Light, Dark, or "Match the visitor's device". Dark renders the widget on a
+  deep-ink background with warm panels and brighter gold accents; "Match the
+  visitor's device" follows each visitor's OS light/dark preference via
+  prefers-color-scheme — no JavaScript switch needed. The shortcode writes the
+  chosen scheme to data-sk-theme and widget.css re-skins entirely from its
+  tokens.
+* Customer emails redesigned. Confirmation, pending-payment and cancellation
+  emails are now modern, responsive HTML (table-based, inline styles for email-
+  client safety) with an ink masthead, a booking-details panel, an ink pill
+  "Manage your booking" button, and a business-details footer. Plain-text
+  wording is unchanged for WhatsApp/SMS.
+* Business details for the email footer. New Settings fields — address, phone,
+  contact email, hours, and Instagram/TikTok/Facebook links — each printed only
+  when filled in. Contact email falls back to the WordPress admin email.
 
 = 0.7.1 =
 * Booking widget — premium 2026 depth pass. Warm washed shell with a gold top

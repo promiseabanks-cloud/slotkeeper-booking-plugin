@@ -58,7 +58,18 @@ class Settings_Page {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'Booking types in use', 'slotkeeper' ); ?></th>
+						<th scope="row"><label for="sk_widget_theme"><?php esc_html_e( 'Booking widget theme', 'slotkeeper' ); ?></label></th>
+							<td>
+								<select id="sk_widget_theme" name="widget_theme">
+									<option value="light" <?php selected( $settings['widget_theme'], 'light' ); ?>><?php esc_html_e( 'Light', 'slotkeeper' ); ?></option>
+									<option value="dark" <?php selected( $settings['widget_theme'], 'dark' ); ?>><?php esc_html_e( 'Dark', 'slotkeeper' ); ?></option>
+									<option value="auto" <?php selected( $settings['widget_theme'], 'auto' ); ?>><?php esc_html_e( "Match the visitor's device", 'slotkeeper' ); ?></option>
+								</select>
+								<p class="description"><?php esc_html_e( 'Colour scheme for the public booking widget. "Dark" renders it on a deep ink background; "Match the visitor\'s device" follows each visitor\'s light/dark system setting.', 'slotkeeper' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Booking types in use', 'slotkeeper' ); ?></th>
 						<td>
 							<?php foreach ( Settings::BOOKING_TYPES as $type ) : ?>
 								<label style="display:block;margin-bottom:4px;">
@@ -168,7 +179,39 @@ class Settings_Page {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php esc_html_e( 'On uninstall', 'slotkeeper' ); ?></th>
+						<th scope="row" colspan="2" style="padding-bottom:0;"><h2 style="margin:18px 0 0;font-size:14px;"><?php esc_html_e( 'Business details (email footer)', 'slotkeeper' ); ?></h2>
+								<p class="description" style="font-weight:400;"><?php esc_html_e( 'Shown in the footer of the emails customers receive. Leave a field blank to hide that line.', 'slotkeeper' ); ?></p>
+							</th>
+						</tr>
+						<tr>
+							<th scope="row"><label for="sk_business_address"><?php esc_html_e( 'Address', 'slotkeeper' ); ?></label></th>
+							<td><textarea id="sk_business_address" name="business_address" class="large-text" rows="2" placeholder="114-47 148 Street, Jamaica, NY 11436"><?php echo esc_textarea( $settings['business_address'] ); ?></textarea></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="sk_business_phone"><?php esc_html_e( 'Phone', 'slotkeeper' ); ?></label></th>
+							<td><input type="text" id="sk_business_phone" name="business_phone" class="regular-text" value="<?php echo esc_attr( $settings['business_phone'] ); ?>" placeholder="+1 (347) 572-8439"></td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="sk_business_email"><?php esc_html_e( 'Contact email', 'slotkeeper' ); ?></label></th>
+							<td>
+								<input type="email" id="sk_business_email" name="business_email" class="regular-text" value="<?php echo esc_attr( $settings['business_email'] ); ?>" placeholder="info@prime-precision.com">
+								<p class="description"><?php esc_html_e( 'Shown in the email footer. Leave blank to use your WordPress admin email.', 'slotkeeper' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><label for="sk_business_hours"><?php esc_html_e( 'Hours', 'slotkeeper' ); ?></label></th>
+							<td><input type="text" id="sk_business_hours" name="business_hours" class="regular-text" value="<?php echo esc_attr( $settings['business_hours'] ); ?>" placeholder="By appointment, Monday to Saturday"></td>
+						</tr>
+						<tr>
+							<th scope="row"><?php esc_html_e( 'Social links', 'slotkeeper' ); ?></th>
+							<td>
+								<p style="margin:0 0 6px;"><input type="url" name="social_instagram" class="regular-text" value="<?php echo esc_attr( $settings['social_instagram'] ); ?>" placeholder="https://instagram.com/…"> <span class="description"><?php esc_html_e( 'Instagram', 'slotkeeper' ); ?></span></p>
+								<p style="margin:0 0 6px;"><input type="url" name="social_tiktok" class="regular-text" value="<?php echo esc_attr( $settings['social_tiktok'] ); ?>" placeholder="https://tiktok.com/@…"> <span class="description"><?php esc_html_e( 'TikTok', 'slotkeeper' ); ?></span></p>
+								<p style="margin:0;"><input type="url" name="social_facebook" class="regular-text" value="<?php echo esc_attr( $settings['social_facebook'] ); ?>" placeholder="https://facebook.com/…"> <span class="description"><?php esc_html_e( 'Facebook', 'slotkeeper' ); ?></span></p>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row"><?php esc_html_e( 'On uninstall', 'slotkeeper' ); ?></th>
 						<td>
 							<label>
 								<input type="checkbox" name="delete_data_on_uninstall" value="1" <?php checked( ! empty( $settings['delete_data_on_uninstall'] ) ); ?>>
@@ -217,10 +260,25 @@ class Settings_Page {
 
 		$paypal_mode = 'sandbox' === sanitize_key( wp_unslash( $_POST['paypal_mode'] ?? 'live' ) ) ? 'sandbox' : 'live';
 
+		$widget_theme = sanitize_key( wp_unslash( $_POST['widget_theme'] ?? 'light' ) );
+		if ( ! in_array( $widget_theme, array( 'light', 'dark', 'auto' ), true ) ) {
+			$widget_theme = 'light';
+		}
+
+		$business_email = sanitize_email( wp_unslash( $_POST['business_email'] ?? '' ) );
+
 		Settings::update(
 			array(
 				'business_name'             => sanitize_text_field( wp_unslash( $_POST['business_name'] ?? '' ) ),
 				'currency'                  => sanitize_text_field( wp_unslash( $_POST['currency'] ?? 'NGN' ) ),
+				'widget_theme'              => $widget_theme,
+				'business_address'          => sanitize_textarea_field( wp_unslash( $_POST['business_address'] ?? '' ) ),
+				'business_phone'            => sanitize_text_field( wp_unslash( $_POST['business_phone'] ?? '' ) ),
+				'business_email'            => $business_email,
+				'business_hours'            => sanitize_text_field( wp_unslash( $_POST['business_hours'] ?? '' ) ),
+				'social_instagram'          => esc_url_raw( wp_unslash( $_POST['social_instagram'] ?? '' ) ),
+				'social_tiktok'             => esc_url_raw( wp_unslash( $_POST['social_tiktok'] ?? '' ) ),
+				'social_facebook'           => esc_url_raw( wp_unslash( $_POST['social_facebook'] ?? '' ) ),
 				'enabled_booking_types'     => $enabled_types,
 				'notifications'             => $notifications,
 				'admin_whatsapp_number'     => $admin_whatsapp,
