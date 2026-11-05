@@ -122,6 +122,7 @@ CREATE TABLE {$bookings} (
   source VARCHAR(10) NOT NULL DEFAULT 'web',
   notes TEXT NULL,
   cancel_token VARCHAR(64) NULL,
+  calendar_event_id VARCHAR(191) NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY  (id),

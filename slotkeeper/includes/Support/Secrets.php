@@ -37,6 +37,7 @@ class Secrets {
 	public const WHATSAPP_TOKEN             = 'whatsapp_meta_token';
 	public const WHATSAPP_PHONE_ID          = 'whatsapp_meta_phone_id';
 	public const GOOGLE_SERVICE_ACCOUNT_JSON = 'google_service_account_json';
+	public const GOOGLE_CALENDAR_ID          = 'google_calendar_id';
 
 	/**
 	 * Reads a credential. `$constant_name`, when given and actually defined,

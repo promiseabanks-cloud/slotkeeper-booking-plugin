@@ -49,6 +49,7 @@ class Settings {
 			),
 			'payment_gateway'        => 'none', // none|paystack|stripe|paypal|flutterwave
 			'paypal_mode'            => 'live', // live|sandbox — PayPal only; not a secret.
+			'google_calendar_sync'   => false, // Add confirmed bookings to Google Calendar — needs a configured service account + calendar id.
 			'deposit_type'           => 'percent', // full|percent|fixed — what to collect at booking time.
 			'deposit_value'          => 50, // percent (1–100) for 'percent', or a major-unit amount for 'fixed'.
 			'manage_booking_page_id' => 0, // WP page containing [slotkeeper_manage_booking] — 0 = not set, no cancel link sent.

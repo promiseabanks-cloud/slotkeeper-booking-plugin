@@ -10,6 +10,7 @@
 namespace SlotKeeper;
 
 use SlotKeeper\Admin\Admin_Menu;
+use SlotKeeper\Calendar\Calendar_Dispatcher;
 use SlotKeeper\Database\Schema;
 use SlotKeeper\Frontend\Manage_Booking_Shortcode;
 use SlotKeeper\Frontend\Shortcode;
@@ -48,6 +49,7 @@ class Plugin {
 
 		( new Notification_Dispatcher() )->register();
 		( new Admin_Notifier() )->register();
+		( new Calendar_Dispatcher() )->register();
 		( new Booking_Rest_Controller() )->register();
 		( new Webhook_Rest_Controller() )->register();
 		( new Shortcode() )->register();

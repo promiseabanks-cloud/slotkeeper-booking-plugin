@@ -4,7 +4,7 @@ Tags: booking, appointments, reservations, rentals, classes
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 0.5.0
+Stable tag: 0.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,17 @@ To enable WhatsApp or Paystack, add the relevant constants to `wp-config.php`
 real key values anywhere).
 
 == Changelog ==
+
+= 0.6.0 =
+* Google Calendar sync (built, previously only a stub). A confirmed booking is
+  written to a shared Google Calendar; cancelling it removes the event.
+  Authentication is via a Google service account (no interactive OAuth): paste
+  the service-account JSON and the target calendar id in Integrations, share
+  that calendar with the service account, then turn sync on in Settings.
+* Added sk_bookings.calendar_event_id (DB v6) to track the created event.
+  Sync runs off the sk_booking_created / sk_booking_cancelled event bus via a
+  new Calendar_Dispatcher, so booking logic is untouched and a calendar
+  failure is logged (under WP_DEBUG) but never breaks a booking.
 
 = 0.5.0 =
 * Providers (shared availability): added a Providers screen and a `sk_providers`

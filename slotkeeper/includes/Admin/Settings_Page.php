@@ -5,6 +5,7 @@
 
 namespace SlotKeeper\Admin;
 
+use SlotKeeper\Calendar\Google_Calendar_Sync;
 use SlotKeeper\Notifications\Email_Channel;
 use SlotKeeper\Notifications\SMS_Channel;
 use SlotKeeper\Notifications\WhatsApp_Channel;
@@ -32,6 +33,7 @@ class Settings_Page {
 		$settings = Settings::all();
 		$channels = array( new Email_Channel(), new WhatsApp_Channel(), new SMS_Channel() );
 		$gateways = Gateway_Registry::all();
+		$calendar = new Google_Calendar_Sync();
 
 		?>
 		<div class="wrap sk-wrap">
@@ -133,6 +135,19 @@ class Settings_Page {
 						</td>
 					</tr>
 					<tr>
+						<th scope="row"><?php esc_html_e( 'Google Calendar', 'slotkeeper' ); ?></th>
+						<td>
+							<label>
+								<input type="checkbox" name="google_calendar_sync" value="1" <?php checked( ! empty( $settings['google_calendar_sync'] ) ); ?> <?php disabled( ! $calendar->is_configured() ); ?>>
+								<?php esc_html_e( 'Add confirmed bookings to Google Calendar', 'slotkeeper' ); ?>
+								<?php if ( ! $calendar->is_configured() ) : ?>
+									<em style="color:#a00;"><?php esc_html_e( '(add the service-account key and calendar id in Integrations first)', 'slotkeeper' ); ?></em>
+								<?php endif; ?>
+							</label>
+							<p class="description"><?php esc_html_e( 'A confirmed booking is added to the shared calendar; cancelling it removes the event. Pending, unpaid holds are not added.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
 						<th scope="row"><label for="sk_manage_page"><?php esc_html_e( 'Manage-booking page', 'slotkeeper' ); ?></label></th>
 						<td>
 							<?php
@@ -211,6 +226,7 @@ class Settings_Page {
 				'admin_whatsapp_number'     => $admin_whatsapp,
 				'payment_gateway'           => sanitize_key( wp_unslash( $_POST['payment_gateway'] ?? 'none' ) ),
 				'paypal_mode'               => $paypal_mode,
+				'google_calendar_sync'      => ! empty( $_POST['google_calendar_sync'] ),
 				'deposit_type'              => $deposit_type,
 				'deposit_value'             => $deposit_value,
 				'manage_booking_page_id'    => absint( $_POST['manage_booking_page_id'] ?? 0 ),
