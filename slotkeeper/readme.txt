@@ -4,7 +4,7 @@ Tags: booking, appointments, reservations, rentals, classes
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 0.4.0
+Stable tag: 0.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,20 @@ To enable WhatsApp or Paystack, add the relevant constants to `wp-config.php`
 real key values anywhere).
 
 == Changelog ==
+
+= 0.5.0 =
+* Providers (shared availability): added a Providers screen and a `sk_providers`
+  table (DB v5). A resource can be assigned to a provider and then shares that
+  provider's weekly hours and date exceptions instead of keeping its own — so
+  one stylist offering many services needs a single schedule, not one per
+  service.
+* Shared occupancy + locking: bookings of any service belonging to the same
+  provider now count against one shared calendar, and the double-booking lock
+  is taken on the provider, so a provider can't be booked into two different
+  services at the same time. Resources with no provider keep their own
+  schedule and occupancy exactly as before.
+* Availability screen now edits either a provider's shared schedule or an
+  individual resource's; Resources screen gained an optional provider selector.
 
 = 0.4.0 =
 * Payments: added Stripe (Checkout) and PayPal (Orders v2) gateways alongside

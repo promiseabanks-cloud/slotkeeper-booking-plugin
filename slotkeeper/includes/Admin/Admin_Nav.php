@@ -23,6 +23,7 @@ class Admin_Nav {
 	private const TABS = array(
 		'slotkeeper'               => array( 'label' => 'Dashboard', 'icon' => 'dashicons-chart-bar' ),
 		'slotkeeper-bookings'      => array( 'label' => 'Bookings', 'icon' => 'dashicons-calendar-alt' ),
+		'slotkeeper-providers'     => array( 'label' => 'Providers', 'icon' => 'dashicons-businessperson' ),
 		'slotkeeper-resources'     => array( 'label' => 'Resources', 'icon' => 'dashicons-groups' ),
 		'slotkeeper-availability'  => array( 'label' => 'Availability', 'icon' => 'dashicons-clock' ),
 		'slotkeeper-settings'      => array( 'label' => 'Settings', 'icon' => 'dashicons-admin-generic' ),

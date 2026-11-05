@@ -44,6 +44,7 @@ class Admin_Menu {
 		// non-colliding slug — the double-booking lock genuinely proved
 		// itself against that, it just wasn't a real double-click.
 		add_submenu_page( 'slotkeeper', __( 'Bookings', 'slotkeeper' ), __( 'Bookings', 'slotkeeper' ), self::CAP, 'slotkeeper-bookings', array( new Bookings_Page(), 'render' ) );
+		add_submenu_page( 'slotkeeper', __( 'Providers', 'slotkeeper' ), __( 'Providers', 'slotkeeper' ), self::CAP, 'slotkeeper-providers', array( new Providers_Page(), 'render' ) );
 		add_submenu_page( 'slotkeeper', __( 'Resources', 'slotkeeper' ), __( 'Resources', 'slotkeeper' ), self::CAP, 'slotkeeper-resources', array( new Resources_Page(), 'render' ) );
 		add_submenu_page( 'slotkeeper', __( 'Availability', 'slotkeeper' ), __( 'Availability', 'slotkeeper' ), self::CAP, 'slotkeeper-availability', array( new Availability_Page(), 'render' ) );
 		add_submenu_page( 'slotkeeper', __( 'Settings', 'slotkeeper' ), __( 'Settings', 'slotkeeper' ), self::CAP, 'slotkeeper-settings', array( new Settings_Page(), 'render' ) );

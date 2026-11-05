@@ -50,8 +50,9 @@ class Availability_Calculator {
 		$capacity = (int) $resource['capacity'];
 		$tz       = wp_timezone();
 
-		$rules      = $this->availability->rules_for( $resource_id );
-		$exceptions = $this->index_exceptions( $this->availability->exceptions_for( $resource_id, $from_date, $to_date ) );
+		$rules      = $this->resolve_rules( $resource );
+		$exceptions = $this->index_exceptions( $this->resolve_exceptions( $resource, $from_date, $to_date ) );
+		$occupancy  = $this->occupancy_ids( $resource );
 
 		$slots = array();
 		$cursor = new \DateTimeImmutable( $from_date, $tz );
@@ -64,7 +65,7 @@ class Availability_Calculator {
 			foreach ( $windows as $window ) {
 				$slots = array_merge(
 					$slots,
-					$this->step_window( $cursor, $window, $duration, $buffer, $resource_id, $capacity, $seats_needed )
+					$this->step_window( $cursor, $window, $duration, $buffer, $occupancy, $capacity, $seats_needed )
 				);
 			}
 
@@ -86,7 +87,7 @@ class Availability_Calculator {
 			return false;
 		}
 
-		$rules = $this->availability->rules_for( $resource_id );
+		$rules = $this->resolve_rules( $resource );
 		if ( ! empty( $rules ) ) {
 			// Resource has explicit hours — every day the range touches must
 			// fall inside an open window. Rare for rentals, but respected if set.
@@ -94,7 +95,7 @@ class Availability_Calculator {
 			$cursor = new \DateTimeImmutable( $start_datetime, $tz );
 			$end    = new \DateTimeImmutable( $end_datetime, $tz );
 			$exceptions = $this->index_exceptions(
-				$this->availability->exceptions_for( $resource_id, $cursor->format( 'Y-m-d' ), $end->format( 'Y-m-d' ) )
+				$this->resolve_exceptions( $resource, $cursor->format( 'Y-m-d' ), $end->format( 'Y-m-d' ) )
 			);
 
 			$day = $cursor;
@@ -107,7 +108,7 @@ class Availability_Calculator {
 			}
 		}
 
-		$booked = $this->bookings->seats_booked_in_window( $resource_id, $start_datetime, $end_datetime );
+		$booked = $this->bookings->seats_booked_in_window_multi( $this->occupancy_ids( $resource ), $start_datetime, $end_datetime );
 		return $booked < max( 1, (int) $resource['capacity'] );
 	}
 
@@ -128,6 +129,54 @@ class Availability_Calculator {
 		);
 
 		return max( 0, (int) $resource['capacity'] - $booked );
+	}
+
+	// ---- provider / resource resolution --------------------------------
+
+	/**
+	 * Weekly rules that govern a resource: the provider's shared schedule when
+	 * the resource belongs to one, otherwise the resource's own rules.
+	 *
+	 * @param array<string,mixed> $resource
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function resolve_rules( array $resource ): array {
+		$provider_id = (int) ( $resource['provider_id'] ?? 0 );
+		return $provider_id > 0
+			? $this->availability->rules_for_provider( $provider_id )
+			: $this->availability->rules_for( (int) $resource['id'] );
+	}
+
+	/**
+	 * @param array<string,mixed> $resource
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function resolve_exceptions( array $resource, string $from_date, string $to_date ): array {
+		$provider_id = (int) ( $resource['provider_id'] ?? 0 );
+		return $provider_id > 0
+			? $this->availability->exceptions_for_provider( $provider_id, $from_date, $to_date )
+			: $this->availability->exceptions_for( (int) $resource['id'], $from_date, $to_date );
+	}
+
+	/**
+	 * The resource ids whose bookings occupy the same calendar as this one —
+	 * every active service a provider offers (so one stylist can't be in two
+	 * services at once), or just this resource when it has no provider.
+	 *
+	 * @param array<string,mixed> $resource
+	 * @return array<int,int>
+	 */
+	private function occupancy_ids( array $resource ): array {
+		$provider_id = (int) ( $resource['provider_id'] ?? 0 );
+		if ( $provider_id <= 0 ) {
+			return array( (int) $resource['id'] );
+		}
+
+		$ids = $this->resources->active_ids_for_provider( $provider_id );
+		if ( ! in_array( (int) $resource['id'], $ids, true ) ) {
+			$ids[] = (int) $resource['id']; // Always count the resource being booked, even mid-status-change.
+		}
+		return $ids;
 	}
 
 	// ---- internals -----------------------------------------------------
@@ -163,9 +212,10 @@ class Availability_Calculator {
 	}
 
 	/**
+	 * @param array<int,int> $occupancy_ids Resource ids whose bookings share this calendar.
 	 * @return array<int, array{start:string,end:string}>
 	 */
-	private function step_window( \DateTimeImmutable $date, array $window, int $duration, int $buffer, int $resource_id, int $capacity, int $seats_needed ): array {
+	private function step_window( \DateTimeImmutable $date, array $window, int $duration, int $buffer, array $occupancy_ids, int $capacity, int $seats_needed ): array {
 		$tz = $date->getTimezone();
 		$day = $date->format( 'Y-m-d' );
 
@@ -183,8 +233,8 @@ class Availability_Calculator {
 			}
 
 			if ( $slot_start > $now ) {
-				$booked = $this->bookings->seats_booked_in_window(
-					$resource_id,
+				$booked = $this->bookings->seats_booked_in_window_multi(
+					$occupancy_ids,
 					$slot_start->format( 'Y-m-d H:i:s' ),
 					$slot_end->format( 'Y-m-d H:i:s' )
 				);

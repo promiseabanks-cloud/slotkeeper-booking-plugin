@@ -29,6 +29,21 @@ class Resource_Repository {
 	}
 
 	/**
+	 * Active resource ids that share one provider's calendar — the set whose
+	 * bookings all consume the same person's time, so an overlap check for one
+	 * service has to see bookings of every other service that provider offers.
+	 *
+	 * @return array<int,int>
+	 */
+	public function active_ids_for_provider( int $provider_id ): array {
+		global $wpdb;
+		$ids = $wpdb->get_col(
+			$wpdb->prepare( "SELECT id FROM {$this->table} WHERE provider_id = %d AND status = 'active'", $provider_id ) // phpcs:ignore -- table name is our own constant.
+		);
+		return array_map( 'intval', $ids );
+	}
+
+	/**
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function all( ?string $type = null, string $status = 'active' ): array {
@@ -84,6 +99,7 @@ class Resource_Repository {
 				'type'              => $data['type'],
 				'name'              => $data['name'],
 				'description'       => $data['description'] ?? null,
+				'provider_id'       => ! empty( $data['provider_id'] ) ? (int) $data['provider_id'] : null,
 				'capacity'          => $data['capacity'] ?? 1,
 				'duration_minutes'  => $data['duration_minutes'] ?? null,
 				'price_minor'       => $data['price_minor'] ?? null,
@@ -96,7 +112,7 @@ class Resource_Repository {
 				'created_at'        => $now,
 				'updated_at'        => $now,
 			),
-			array( '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		return (int) $wpdb->insert_id;

@@ -120,6 +120,39 @@ class Booking_Repository {
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) ); // phpcs:ignore
 	}
 
+	/**
+	 * Like seats_booked_in_window, but across several resources at once — the
+	 * occupancy of a whole provider's calendar (all the services one stylist
+	 * offers), so booking any one service sees bookings of every other. Pass a
+	 * single id for the ordinary per-resource case.
+	 *
+	 * @param array<int,int> $resource_ids
+	 */
+	public function seats_booked_in_window_multi( array $resource_ids, string $start, string $end, ?int $exclude_booking_id = null ): int {
+		global $wpdb;
+
+		$resource_ids = array_values( array_unique( array_map( 'intval', $resource_ids ) ) );
+		if ( empty( $resource_ids ) ) {
+			return 0;
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $resource_ids ), '%d' ) );
+
+		$sql = "SELECT COALESCE(SUM(seats_booked), 0) FROM {$this->table}
+			WHERE resource_id IN ({$placeholders})
+			AND status IN ('pending','confirmed')
+			AND start_datetime < %s
+			AND end_datetime > %s";
+		$params = array_merge( $resource_ids, array( $end, $start ) );
+
+		if ( $exclude_booking_id ) {
+			$sql     .= ' AND id != %d';
+			$params[] = $exclude_booking_id;
+		}
+
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) ); // phpcs:ignore
+	}
+
 	public function create( array $data ): int {
 		global $wpdb;
 		$now = current_time( 'mysql' );

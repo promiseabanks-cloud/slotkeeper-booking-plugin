@@ -27,6 +27,7 @@ class Schema {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$resources = self::table( 'resources' );
+		$providers = self::table( 'providers' );
 		$rules     = self::table( 'availability_rules' );
 		$exceptions = self::table( 'availability_exceptions' );
 		$customers = self::table( 'customers' );
@@ -35,11 +36,22 @@ class Schema {
 		$notif_log = self::table( 'notifications_log' );
 
 		$sql = "
+CREATE TABLE {$providers} (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(191) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY  (id),
+  KEY status (status)
+) {$charset_collate};
+
 CREATE TABLE {$resources} (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   type VARCHAR(20) NOT NULL,
   name VARCHAR(191) NOT NULL,
   description TEXT NULL,
+  provider_id BIGINT UNSIGNED NULL,
   capacity SMALLINT UNSIGNED NOT NULL DEFAULT 1,
   duration_minutes SMALLINT UNSIGNED NULL,
   price_minor BIGINT UNSIGNED NULL,
@@ -52,23 +64,27 @@ CREATE TABLE {$resources} (
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY  (id),
-  KEY type_status (type, status)
+  KEY type_status (type, status),
+  KEY provider_id (provider_id)
 ) {$charset_collate};
 
 CREATE TABLE {$rules} (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  resource_id BIGINT UNSIGNED NOT NULL,
+  resource_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  provider_id BIGINT UNSIGNED NULL,
   day_of_week TINYINT UNSIGNED NOT NULL,
   start_time TIME NOT NULL,
   end_time TIME NOT NULL,
   created_at DATETIME NOT NULL,
   PRIMARY KEY  (id),
-  KEY resource_day (resource_id, day_of_week)
+  KEY resource_day (resource_id, day_of_week),
+  KEY provider_day (provider_id, day_of_week)
 ) {$charset_collate};
 
 CREATE TABLE {$exceptions} (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  resource_id BIGINT UNSIGNED NOT NULL,
+  resource_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  provider_id BIGINT UNSIGNED NULL,
   exception_date DATE NOT NULL,
   is_closed TINYINT(1) NOT NULL DEFAULT 1,
   start_time TIME NULL,
@@ -76,7 +92,8 @@ CREATE TABLE {$exceptions} (
   reason VARCHAR(191) NULL,
   created_at DATETIME NOT NULL,
   PRIMARY KEY  (id),
-  KEY resource_date (resource_id, exception_date)
+  KEY resource_date (resource_id, exception_date),
+  KEY provider_date (provider_id, exception_date)
 ) {$charset_collate};
 
 CREATE TABLE {$customers} (
@@ -159,7 +176,7 @@ CREATE TABLE {$notif_log} (
 	 */
 	public static function drop_all(): void {
 		global $wpdb;
-		foreach ( array( 'resources', 'availability_rules', 'availability_exceptions', 'customers', 'bookings', 'payments', 'notifications_log' ) as $name ) {
+		foreach ( array( 'providers', 'resources', 'availability_rules', 'availability_exceptions', 'customers', 'bookings', 'payments', 'notifications_log' ) as $name ) {
 			$table = self::table( $name );
 			$wpdb->query( "DROP TABLE IF EXISTS {$table}" ); // phpcs:ignore -- table name is our own constant, not user input.
 		}
