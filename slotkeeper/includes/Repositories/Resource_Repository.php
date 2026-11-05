@@ -98,6 +98,7 @@ class Resource_Repository {
 			array(
 				'type'              => $data['type'],
 				'name'              => $data['name'],
+				'category'          => $data['category'] ?? null,
 				'description'       => $data['description'] ?? null,
 				'provider_id'       => ! empty( $data['provider_id'] ) ? (int) $data['provider_id'] : null,
 				'capacity'          => $data['capacity'] ?? 1,
@@ -112,7 +113,7 @@ class Resource_Repository {
 				'created_at'        => $now,
 				'updated_at'        => $now,
 			),
-			array( '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		return (int) $wpdb->insert_id;

@@ -57,13 +57,23 @@ class Shortcode {
 			'i18n'        => $this->strings(),
 		);
 
-		// Force the light palette — the widget renders inside the theme's white
-		// card, so a visitor's OS dark-mode preference must not flip it dark.
+		// Colour scheme is a site-owner setting (SlotKeeper > Settings):
+		//   light — always the cream/ink light skin (the default)
+		//   dark  — always the deep-ink dark skin
+		//   auto  — follow each visitor's OS light/dark preference
+		// The attribute drives the palette in widget.css; "auto" there keys off
+		// prefers-color-scheme, so no JS is needed to switch.
+		$theme = \SlotKeeper\Support\Settings::get( 'widget_theme', 'light' );
+		if ( ! in_array( $theme, array( 'light', 'dark', 'auto' ), true ) ) {
+			$theme = 'light';
+		}
+
 		return sprintf(
-			'<div id="%1$s" class="sk-widget-root" data-sk-theme="light" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
+			'<div id="%1$s" class="sk-widget-root" data-sk-theme="%4$s" data-sk-config="%2$s"></div><noscript>%3$s</noscript>',
 			esc_attr( $mount_id ),
 			esc_attr( wp_json_encode( $config ) ),
-			esc_html__( 'This booking widget needs JavaScript enabled to work — please contact us directly to book.', 'slotkeeper' )
+			esc_html__( 'This booking widget needs JavaScript enabled to work — please contact us directly to book.', 'slotkeeper' ),
+			esc_attr( $theme )
 		);
 	}
 
@@ -73,7 +83,7 @@ class Shortcode {
 		// loads them (WordPress de-dupes identical Google Fonts requests).
 		wp_enqueue_style(
 			'slotkeeper-widget-fonts',
-			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Raleway:wght@400;500;600;700&display=swap',
+			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Raleway:wght@400;500;600;700&display=swap',
 			array(),
 			null
 		);
@@ -86,7 +96,15 @@ class Shortcode {
 	 */
 	private function strings(): array {
 		return array(
-			'choose_title'      => __( "Choose what you're booking", 'slotkeeper' ),
+			'choose_title'      => __( 'Choose your style', 'slotkeeper' ),
+			'choose_hint'       => __( 'Pick a category, then choose your style.', 'slotkeeper' ),
+			'eyebrow_choose'    => __( 'Step 1 of 3', 'slotkeeper' ),
+			'eyebrow_when'      => __( 'Step 2 of 3', 'slotkeeper' ),
+			'eyebrow_details'   => __( 'Step 3 of 3', 'slotkeeper' ),
+			'from_label'        => __( 'from', 'slotkeeper' ),
+			'free_label'        => __( 'Free', 'slotkeeper' ),
+			'style_one'         => __( 'style', 'slotkeeper' ),
+			'style_many'        => __( 'styles', 'slotkeeper' ),
 			'when_title'        => __( 'Pick a time', 'slotkeeper' ),
 			'range_title'       => __( 'Pick your dates', 'slotkeeper' ),
 			'details_title'     => __( 'Your details', 'slotkeeper' ),

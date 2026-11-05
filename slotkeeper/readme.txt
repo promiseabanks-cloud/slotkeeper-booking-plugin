@@ -4,7 +4,7 @@ Tags: booking, appointments, reservations, rentals, classes
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 0.6.0
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,44 @@ To enable WhatsApp or Paystack, add the relevant constants to `wp-config.php`
 real key values anywhere).
 
 == Changelog ==
+
+= 0.7.2 =
+* Dark theme. A new "Booking widget theme" setting (SlotKeeper > Settings) picks
+  Light, Dark, or "Match the visitor's device". Dark renders the widget on a
+  deep-ink background with warm panels and brighter gold accents; "Match the
+  visitor's device" follows each visitor's OS light/dark preference via
+  prefers-color-scheme — no JavaScript switch needed. The shortcode writes the
+  chosen scheme to data-sk-theme and widget.css re-skins entirely from its
+  tokens.
+* Customer emails redesigned. Confirmation, pending-payment and cancellation
+  emails are now modern, responsive HTML (table-based, inline styles for email-
+  client safety) with an ink masthead, a booking-details panel, an ink pill
+  "Manage your booking" button, and a business-details footer. Plain-text
+  wording is unchanged for WhatsApp/SMS.
+* Business details for the email footer. New Settings fields — address, phone,
+  contact email, hours, and Instagram/TikTok/Facebook links — each printed only
+  when filled in. Contact email falls back to the WordPress admin email.
+
+= 0.7.1 =
+* Booking widget — premium 2026 depth pass. Warm washed shell with a gold top
+  sheen, elevated category cards with layered soft shadows, a chevron-in-circle
+  (warm when closed, ink-filled when open), generous padding and a larger type
+  scale. Micro-interactions throughout: card lift on hover, an accent spine and
+  slide on style rows, animated dropdown expand, day/time chip lift, a pulsing
+  button icon, and a success-glyph pop. Keeps the no-italics / accent-only-for-
+  icons rule. No schema or behaviour change (asset-only), so the version bump is
+  purely a cache-bust.
+
+= 0.7.0 =
+* Service categories: resources now carry a category (DB v7, sk_resources.category).
+  The booking widget groups styles under a category and reveals them in a
+  dropdown — pick a category, then the style within it — instead of one long
+  flat list. Editable per resource on the Resources screen and set by the
+  Prime Precision seeder.
+* Booking widget: premium UI pass — Cormorant Garamond / Raleway, ink pill
+  action button with an accent icon, underline inputs, a category accordion,
+  and no italics or gold-on-text (gold is reserved for icons, focus rings and
+  hover borders).
 
 = 0.6.0 =
 * Google Calendar sync (built, previously only a stub). A confirmed booking is

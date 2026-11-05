@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       SlotKeeper
  * Description:       A configurable booking engine — appointments, reservations, rentals, or classes — for any business running WordPress.
- * Version:           0.6.0
+ * Version:           0.7.2
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Author:            Banks Solution
@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'SLOTKEEPER_VERSION', '0.6.0' );
-define( 'SLOTKEEPER_DB_VERSION', '6' ); // v6: sk_bookings.calendar_event_id added — the Google Calendar event id for a confirmed booking, so it can be removed if the booking is cancelled. v5: sk_providers table + provider_id on resources/availability_rules/availability_exceptions — a shared schedule many services point at (one stylist across many services), extensible to multiple providers. v4: sk_payments.total_minor added — records the full price alongside amount_minor so a deposit's outstanding balance is derivable. v3: sk_notifications_log.error_message widened to TEXT — a Meta API error (371 chars) silently failed to insert against the old VARCHAR(255).
+define( 'SLOTKEEPER_VERSION', '0.7.2' );
+define( 'SLOTKEEPER_DB_VERSION', '7' ); // v7: sk_resources.category added — groups services (e.g. "Boho Braids") so the booking widget can show a category then a dropdown of its styles. v6: sk_bookings.calendar_event_id added — the Google Calendar event id for a confirmed booking, so it can be removed if the booking is cancelled. v5: sk_providers table + provider_id on resources/availability_rules/availability_exceptions — a shared schedule many services point at (one stylist across many services), extensible to multiple providers. v4: sk_payments.total_minor added — records the full price alongside amount_minor so a deposit's outstanding balance is derivable. v3: sk_notifications_log.error_message widened to TEXT — a Meta API error (371 chars) silently failed to insert against the old VARCHAR(255).
 define( 'SLOTKEEPER_PLUGIN_FILE', __FILE__ );
 define( 'SLOTKEEPER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SLOTKEEPER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
