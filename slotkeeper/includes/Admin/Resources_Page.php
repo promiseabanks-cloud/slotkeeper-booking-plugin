@@ -6,6 +6,7 @@
 namespace SlotKeeper\Admin;
 
 use SlotKeeper\Payments\Paystack_Gateway;
+use SlotKeeper\Repositories\Provider_Repository;
 use SlotKeeper\Repositories\Resource_Repository;
 use SlotKeeper\Support\Settings;
 
@@ -35,6 +36,7 @@ class Resources_Page {
 
 		$enabled_booking_types = Settings::get( 'enabled_booking_types', array() );
 		$resources             = $repo->all();
+		$providers             = ( new Provider_Repository() )->all();
 		$payment_gateway_ready = 'paystack' === Settings::get( 'payment_gateway' ) && ( new Paystack_Gateway() )->is_configured();
 
 		?>
@@ -69,8 +71,22 @@ class Resources_Page {
 						</tr>
 						<tr>
 							<th scope="row"><label for="sk_res_name"><?php esc_html_e( 'Name', 'slotkeeper' ); ?></label></th>
-							<td><input type="text" id="sk_res_name" name="name" class="regular-text" required placeholder="<?php esc_attr_e( 'e.g. Amaka (stylist), Table 4, Canopy Tent, Yoga — Sat 9am', 'slotkeeper' ); ?>"></td>
+							<td><input type="text" id="sk_res_name" name="name" class="regular-text" required placeholder="<?php esc_attr_e( 'e.g. Box Braids, Table 4, Canopy Tent, Yoga — Sat 9am', 'slotkeeper' ); ?>"></td>
 						</tr>
+						<?php if ( ! empty( $providers ) ) : ?>
+						<tr>
+							<th scope="row"><label for="sk_res_provider"><?php esc_html_e( 'Provider', 'slotkeeper' ); ?></label></th>
+							<td>
+								<select id="sk_res_provider" name="provider_id">
+									<option value="0"><?php esc_html_e( '— none (own schedule) —', 'slotkeeper' ); ?></option>
+									<?php foreach ( $providers as $provider ) : ?>
+										<option value="<?php echo esc_attr( $provider['id'] ); ?>"><?php echo esc_html( $provider['name'] ); ?></option>
+									<?php endforeach; ?>
+								</select>
+								<p class="description"><?php esc_html_e( 'Who performs this service. Services sharing a provider share one schedule and one calendar — the provider can only be booked into one at a time. Leave as “none” to give this resource its own independent schedule.', 'slotkeeper' ); ?></p>
+							</td>
+						</tr>
+						<?php endif; ?>
 						<tr>
 							<th scope="row"><label for="sk_res_description"><?php esc_html_e( 'Description', 'slotkeeper' ); ?></label></th>
 							<td><textarea id="sk_res_description" name="description" class="large-text" rows="2"></textarea></td>
@@ -215,6 +231,7 @@ class Resources_Page {
 			'type'             => $resource_type,
 			'name'             => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
 			'description'      => sanitize_textarea_field( wp_unslash( $_POST['description'] ?? '' ) ),
+			'provider_id'      => ! empty( $_POST['provider_id'] ) ? absint( $_POST['provider_id'] ) : null,
 			'capacity'         => max( 1, absint( $_POST['capacity'] ?? 1 ) ),
 			'duration_minutes' => ! empty( $_POST['duration_minutes'] ) ? absint( $_POST['duration_minutes'] ) : null,
 			'buffer_minutes'   => absint( $_POST['buffer_minutes'] ?? 0 ),

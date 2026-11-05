@@ -48,7 +48,10 @@ class Booking_Service {
 		}
 
 		$seats = max( 1, (int) ( $args['seats_booked'] ?? 1 ) );
-		$lock_key = 'sk_resource_' . (int) $resource['id'];
+		// Lock the whole provider when the resource shares a provider's calendar,
+		// so two different services of the same stylist can't both pass the
+		// availability check at once; otherwise lock just this resource.
+		$lock_key = $this->lock_key( $resource );
 
 		if ( ! $this->acquire_lock( $lock_key ) ) {
 			return new \WP_Error( 'sk_lock_timeout', __( 'This slot is being booked by someone else right now — please try again.', 'slotkeeper' ) );
@@ -154,13 +157,38 @@ class Booking_Service {
 				break;
 
 			default: // staff (appointments), table (reservations).
-				$booked = $this->bookings->seats_booked_in_window( (int) $resource['id'], $start, $end );
+				$booked = $this->bookings->seats_booked_in_window_multi( $this->occupancy_ids( $resource ), $start, $end );
 				if ( ( $booked + $seats ) > (int) $resource['capacity'] ) {
 					return new \WP_Error( 'sk_unavailable', __( 'That slot was just taken — please pick another.', 'slotkeeper' ) );
 				}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Active resource ids sharing this resource's provider calendar, or just
+	 * this resource when it has no provider — the scope an overlap check must
+	 * cover so one stylist isn't booked into two services at the same time.
+	 *
+	 * @param array<string,mixed> $resource
+	 * @return array<int,int>
+	 */
+	private function occupancy_ids( array $resource ): array {
+		$provider_id = (int) ( $resource['provider_id'] ?? 0 );
+		if ( $provider_id <= 0 ) {
+			return array( (int) $resource['id'] );
+		}
+		$ids = $this->resources->active_ids_for_provider( $provider_id );
+		if ( ! in_array( (int) $resource['id'], $ids, true ) ) {
+			$ids[] = (int) $resource['id'];
+		}
+		return $ids;
+	}
+
+	private function lock_key( array $resource ): string {
+		$provider_id = (int) ( $resource['provider_id'] ?? 0 );
+		return $provider_id > 0 ? 'sk_provider_' . $provider_id : 'sk_resource_' . (int) $resource['id'];
 	}
 
 	private function sanitize_phone( string $phone ): string {
