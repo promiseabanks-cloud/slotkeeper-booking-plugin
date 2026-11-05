@@ -192,6 +192,24 @@ class Booking_Repository {
 		);
 	}
 
+	public function set_calendar_event_id( int $id, string $event_id ): bool {
+		global $wpdb;
+		return false !== $wpdb->update(
+			$this->table,
+			array( 'calendar_event_id' => $event_id, 'updated_at' => current_time( 'mysql' ) ),
+			array( 'id' => $id )
+		);
+	}
+
+	public function clear_calendar_event_id( int $id ): bool {
+		global $wpdb;
+		return false !== $wpdb->update(
+			$this->table,
+			array( 'calendar_event_id' => null, 'updated_at' => current_time( 'mysql' ) ),
+			array( 'id' => $id )
+		);
+	}
+
 	public function update_payment_status( int $id, string $payment_status ): bool {
 		global $wpdb;
 		return false !== $wpdb->update(

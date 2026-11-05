@@ -164,7 +164,15 @@ class Integrations_Page {
 						<td>
 							<textarea id="sk_gcal_json" name="google_service_account_json" rows="4" class="large-text code" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::GOOGLE_SERVICE_ACCOUNT_JSON, 'SLOTKEEPER_GOOGLE_SERVICE_ACCOUNT_JSON' ) ? esc_attr__( 'A key is already saved — leave blank to keep it', 'slotkeeper' ) : '{ "type": "service_account", ... }'; ?>"></textarea>
 							<label><input type="checkbox" name="google_service_account_json_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
-							<p class="description"><?php esc_html_e( 'Paste the full contents of the service-account key file from Google Cloud Console. Calendar sync itself isn\'t built yet — this just saves the credential so nothing needs re-entering once it is.', 'slotkeeper' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Paste the full contents of the service-account key file from Google Cloud Console (APIs & Services → Credentials). Then turn sync on in Settings → Google Calendar.', 'slotkeeper' ); ?></p>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="sk_gcal_id"><?php esc_html_e( 'Calendar ID', 'slotkeeper' ); ?></label></th>
+						<td>
+							<input type="text" id="sk_gcal_id" name="google_calendar_id" class="regular-text" autocomplete="off" placeholder="<?php echo Secrets::is_set( Secrets::GOOGLE_CALENDAR_ID, 'SLOTKEEPER_GOOGLE_CALENDAR_ID' ) ? esc_attr__( 'Saved — leave blank to keep', 'slotkeeper' ) : 'you@example.com'; ?>">
+							<label style="margin-left:10px;"><input type="checkbox" name="google_calendar_id_clear" value="1"> <?php esc_html_e( 'Remove', 'slotkeeper' ); ?></label>
+							<p class="description"><?php esc_html_e( 'The calendar to write to (its ID is shown in Google Calendar → Settings → Integrate calendar). Share that calendar with the service account\'s client_email address, giving it "Make changes to events", or events can\'t be created.', 'slotkeeper' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -196,6 +204,7 @@ class Integrations_Page {
 			'whatsapp_meta_token'          => Secrets::WHATSAPP_TOKEN,
 			'whatsapp_meta_phone_id'       => Secrets::WHATSAPP_PHONE_ID,
 			'google_service_account_json'  => Secrets::GOOGLE_SERVICE_ACCOUNT_JSON,
+			'google_calendar_id'           => Secrets::GOOGLE_CALENDAR_ID,
 		);
 
 		foreach ( $fields as $post_key => $secret_key ) {
