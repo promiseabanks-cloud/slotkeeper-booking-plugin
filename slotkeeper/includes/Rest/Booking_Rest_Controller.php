@@ -19,6 +19,7 @@ use SlotKeeper\Repositories\Booking_Repository;
 use SlotKeeper\Repositories\Customer_Repository;
 use SlotKeeper\Repositories\Payment_Repository;
 use SlotKeeper\Repositories\Resource_Repository;
+use SlotKeeper\Support\Deposit;
 use SlotKeeper\Support\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -138,7 +139,18 @@ class Booking_Rest_Controller {
 			'requires_payment' => $requires_payment,
 		);
 
-		$payment_note = $requires_payment ? ' · ' . __( 'payment required to confirm', 'slotkeeper' ) : '';
+		$payment_note = '';
+		if ( $requires_payment ) {
+			$currency = Settings::get( 'currency', 'NGN' );
+			$deposit  = Deposit::amount_to_charge( (int) $r['price_minor'], $currency, $r );
+			$out['deposit'] = $deposit;
+			if ( $deposit < (int) $r['price_minor'] ) {
+				/* translators: %s: formatted deposit amount */
+				$payment_note = ' · ' . sprintf( __( '%s deposit to confirm', 'slotkeeper' ), $this->money( $deposit ) );
+			} else {
+				$payment_note = ' · ' . __( 'payment required to confirm', 'slotkeeper' );
+			}
+		}
 
 		switch ( $r['type'] ) {
 			case 'staff':
@@ -356,16 +368,24 @@ class Booking_Rest_Controller {
 			return new \WP_Error( 'sk_not_found', __( 'Booking not found.', 'slotkeeper' ) );
 		}
 
-		$amount_minor = (int) $resource['price_minor'];
+		$full_minor = (int) $resource['price_minor'];
 
 		if ( 'rental_item' === $resource['type'] ) {
-			$days          = max( 1, (int) ceil( ( strtotime( $args['end_datetime'] ) - strtotime( $args['start_datetime'] ) ) / DAY_IN_SECONDS ) );
-			$amount_minor *= $days;
+			$days        = max( 1, (int) ceil( ( strtotime( $args['end_datetime'] ) - strtotime( $args['start_datetime'] ) ) / DAY_IN_SECONDS ) );
+			$full_minor *= $days;
 		}
+
+		$currency = Settings::get( 'currency', 'NGN' );
+
+		// What we collect online now — the whole price, or a deposit — per the
+		// site's deposit policy (or a per-service override). The balance, if
+		// any, is settled in person. The full price is recorded as total_minor
+		// so the outstanding balance stays derivable from the payment row.
+		$charge_minor = Deposit::amount_to_charge( $full_minor, $currency, $resource );
 
 		$return_url = esc_url_raw( (string) $request->get_param( 'page_url' ) ) ?: home_url( '/' );
 
-		$checkout = $gateway->create_checkout( $booking, $amount_minor, Settings::get( 'currency', 'NGN' ), $return_url );
+		$checkout = $gateway->create_checkout( $booking, $charge_minor, $currency, $return_url );
 		if ( is_wp_error( $checkout ) ) {
 			return $checkout;
 		}
@@ -374,8 +394,9 @@ class Booking_Rest_Controller {
 			array(
 				'booking_id'        => $booking['id'],
 				'gateway'           => $gateway->key(),
-				'amount_minor'      => $amount_minor,
-				'currency'          => Settings::get( 'currency', 'NGN' ),
+				'amount_minor'      => $charge_minor,
+				'total_minor'       => $full_minor,
+				'currency'          => $currency,
 				'status'            => 'pending',
 				'gateway_reference' => $checkout['reference'],
 			)

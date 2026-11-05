@@ -25,12 +25,39 @@ class Gateway_Registry {
 	public static function active(): ?Payment_Gateway {
 		$key = Settings::get( 'payment_gateway', 'none' );
 
-		$gateway = match ( $key ) {
+		$gateway = self::make( $key );
+
+		return ( $gateway && $gateway->is_configured() ) ? $gateway : null;
+	}
+
+	/**
+	 * Instantiate a gateway by key, configured or not — used by the admin
+	 * screens (which list gateways regardless of setup state) and the webhook
+	 * router (which resolves the gateway a given endpoint belongs to). Returns
+	 * null for an unknown key.
+	 */
+	public static function make( string $key ): ?Payment_Gateway {
+		return match ( $key ) {
 			'paystack'    => new Paystack_Gateway(),
+			'stripe'      => new Stripe_Gateway(),
+			'paypal'      => new PayPal_Gateway(),
 			'flutterwave' => new Flutterwave_Gateway(),
 			default       => null,
 		};
+	}
 
-		return ( $gateway && $gateway->is_configured() ) ? $gateway : null;
+	/**
+	 * Every gateway SlotKeeper knows about, instantiated — for the settings
+	 * dropdown and the integrations screen, in display order.
+	 *
+	 * @return array<int,Payment_Gateway>
+	 */
+	public static function all(): array {
+		return array(
+			new Paystack_Gateway(),
+			new Stripe_Gateway(),
+			new PayPal_Gateway(),
+			new Flutterwave_Gateway(),
+		);
 	}
 }

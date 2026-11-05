@@ -29,6 +29,11 @@ class Secrets {
 	private const CIPHER     = 'aes-256-cbc';
 
 	public const PAYSTACK_SECRET_KEY        = 'paystack_secret_key';
+	public const STRIPE_SECRET_KEY          = 'stripe_secret_key';
+	public const STRIPE_WEBHOOK_SECRET      = 'stripe_webhook_secret';
+	public const PAYPAL_CLIENT_ID           = 'paypal_client_id';
+	public const PAYPAL_SECRET              = 'paypal_secret';
+	public const PAYPAL_WEBHOOK_ID          = 'paypal_webhook_id';
 	public const WHATSAPP_TOKEN             = 'whatsapp_meta_token';
 	public const WHATSAPP_PHONE_ID          = 'whatsapp_meta_phone_id';
 	public const GOOGLE_SERVICE_ACCOUNT_JSON = 'google_service_account_json';

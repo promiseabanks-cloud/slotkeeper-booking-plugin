@@ -60,13 +60,14 @@ class Payment_Repository {
 				'booking_id'        => $data['booking_id'],
 				'gateway'           => $data['gateway'],
 				'amount_minor'      => $data['amount_minor'],
+				'total_minor'       => $data['total_minor'] ?? $data['amount_minor'],
 				'currency'          => $data['currency'] ?? 'NGN',
 				'status'            => $data['status'] ?? 'pending',
 				'gateway_reference' => $data['gateway_reference'] ?? null,
 				'created_at'        => $now,
 				'updated_at'        => $now,
 			),
-			array( '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s' )
+			array( '%d', '%s', '%d', '%d', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		return (int) $wpdb->insert_id;

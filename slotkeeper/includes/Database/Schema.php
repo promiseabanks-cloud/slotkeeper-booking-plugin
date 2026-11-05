@@ -118,6 +118,7 @@ CREATE TABLE {$payments} (
   booking_id BIGINT UNSIGNED NOT NULL,
   gateway VARCHAR(20) NOT NULL,
   amount_minor BIGINT UNSIGNED NOT NULL,
+  total_minor BIGINT UNSIGNED NULL,
   currency VARCHAR(3) NOT NULL DEFAULT 'NGN',
   status VARCHAR(20) NOT NULL DEFAULT 'pending',
   gateway_reference VARCHAR(191) NULL,
