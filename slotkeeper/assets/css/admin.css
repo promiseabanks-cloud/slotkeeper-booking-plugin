@@ -1,0 +1,259 @@
+/*
+ * SlotKeeper wp-admin design system. Deliberately built ON TOP of WordPress
+ * admin's own conventions (nav-tab-wrapper, form-table, widefat, button)
+ * rather than replacing them — consistency with the rest of wp-admin is a
+ * feature for an admin tool, not a limitation. Brand color/spacing/cards
+ * layer on top; typography, form controls, and table chrome stay native.
+ */
+
+.sk-wrap {
+	--sk-accent: #0F6B54;
+	--sk-accent-soft: #E3F1EA;
+	--sk-accent-ink: #FFFFFF;
+	--sk-line: #E1DED4;
+	--sk-muted: #6B756F;
+	--sk-surface: #FFFFFF;
+	--sk-surface-2: #F7F6F2;
+	--sk-good: #0A7A3C;
+	--sk-good-soft: #E6F4EA;
+	--sk-warn: #B8452B;
+	--sk-warn-soft: #FBEAE4;
+	--sk-pending: #9A6B0A;
+	--sk-pending-soft: #FCF3E1;
+	max-width: 1200px;
+}
+
+/* ---------------------------------------------------------------- header */
+
+.sk-wrap .sk-app-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+.sk-wrap .sk-app-title .dashicons {
+	color: var(--sk-accent);
+	width: 26px;
+	height: 26px;
+	font-size: 26px;
+}
+
+/* --------------------------------------------------------------- tab bar */
+
+.sk-wrap .sk-tabs.nav-tab-wrapper {
+	margin-bottom: 22px;
+	border-bottom-color: var(--sk-line);
+}
+.sk-wrap .sk-tabs .nav-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border-color: var(--sk-line);
+	color: var(--sk-muted);
+}
+.sk-wrap .sk-tabs .nav-tab .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+.sk-wrap .sk-tabs .nav-tab-active,
+.sk-wrap .sk-tabs .nav-tab-active:hover {
+	background: var(--sk-surface);
+	border-bottom-color: var(--sk-surface);
+	color: var(--sk-accent);
+	font-weight: 600;
+}
+
+/* -------------------------------------------------------------- sections */
+
+.sk-wrap h2 {
+	margin-top: 28px;
+	margin-bottom: 10px;
+}
+.sk-wrap h2:first-child {
+	margin-top: 0;
+}
+
+/* ---------------------------------------------------------------- forms */
+
+.sk-wrap .sk-form {
+	background: var(--sk-surface);
+	border: 1px solid var(--sk-line);
+	border-radius: 8px;
+	padding: 18px 20px;
+	max-width: 640px;
+	margin-bottom: 20px;
+}
+.sk-wrap .sk-form p {
+	margin: 10px 0;
+}
+.sk-wrap .sk-form label {
+	display: inline-block;
+	min-width: 140px;
+	font-weight: 600;
+}
+.sk-wrap table.widefat {
+	margin-top: 8px;
+	border-color: var(--sk-line);
+}
+
+/* --------------------------------------------------------------- badges */
+
+.sk-badge {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	padding: 3px 9px;
+	border-radius: 99px;
+	line-height: 1.5;
+}
+.sk-badge-good    { color: var(--sk-good);    background: var(--sk-good-soft); }
+.sk-badge-warn    { color: var(--sk-warn);    background: var(--sk-warn-soft); }
+.sk-badge-pending { color: var(--sk-pending); background: var(--sk-pending-soft); }
+.sk-badge-muted   { color: var(--sk-muted);   background: var(--sk-surface-2); }
+
+/* ------------------------------------------------------------ dashboard */
+
+.sk-stat-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 14px;
+	margin-bottom: 24px;
+}
+.sk-stat-card {
+	background: var(--sk-surface);
+	border: 1px solid var(--sk-line);
+	border-radius: 10px;
+	padding: 18px 20px;
+	position: relative;
+}
+.sk-stat-card .dashicons {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	color: var(--sk-accent);
+	opacity: 0.35;
+	font-size: 22px;
+	width: 22px;
+	height: 22px;
+}
+.sk-stat-value {
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #1d2327;
+	font-variant-numeric: tabular-nums;
+}
+.sk-stat-label {
+	color: var(--sk-muted);
+	font-size: 13px;
+	margin-top: 2px;
+}
+
+.sk-dash-columns {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 20px;
+	align-items: start;
+}
+@media (max-width: 900px) {
+	.sk-dash-columns { grid-template-columns: 1fr; }
+}
+
+.sk-card {
+	background: var(--sk-surface);
+	border: 1px solid var(--sk-line);
+	border-radius: 10px;
+	padding: 18px 20px;
+	margin-bottom: 20px;
+}
+.sk-card h2 {
+	margin-top: 0;
+	font-size: 15px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	color: var(--sk-muted);
+}
+
+.sk-empty-note {
+	color: var(--sk-muted);
+	font-style: italic;
+}
+
+.sk-activity-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.sk-activity-list li {
+	padding: 10px 0;
+	border-bottom: 1px solid var(--sk-line);
+	font-size: 13.5px;
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.sk-activity-list li:last-child {
+	border-bottom: 0;
+}
+.sk-activity-time {
+	color: var(--sk-muted);
+	margin-left: auto;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.sk-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.sk-checklist li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--sk-line);
+	font-size: 13px;
+	line-height: 1.5;
+}
+.sk-checklist li:last-child {
+	border-bottom: 0;
+}
+.sk-checklist .dashicons {
+	flex: none;
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	margin-top: 1px;
+}
+.sk-check-done .dashicons {
+	color: var(--sk-good);
+}
+.sk-check-pending .dashicons {
+	color: var(--sk-pending);
+}
+.sk-check-pending {
+	color: #1d2327;
+}
+.sk-check-done {
+	color: var(--sk-muted);
+	text-decoration: line-through;
+	text-decoration-color: var(--sk-line);
+}
+.sk-check-done a {
+	display: none;
+}
+
+.sk-quick-links {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.sk-quick-links .button {
+	text-align: center;
+	border-color: var(--sk-line);
+}

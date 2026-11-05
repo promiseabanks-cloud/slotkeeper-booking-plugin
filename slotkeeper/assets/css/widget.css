@@ -1,0 +1,208 @@
+/*
+ * SlotKeeper booking widget — production stylesheet.
+ * Design system approved via flow-prototype review; see PROJECT_BIBLE.md.
+ * Everything is scoped under .sk-widget-root and every token is --sk-* so
+ * this can never collide with the host theme's own CSS custom properties.
+ */
+
+.sk-widget-root {
+  --sk-paper:#FBFAF7;
+  --sk-surface:#FFFFFF;
+  --sk-surface-2:#F3F1EA;
+  --sk-ink:#1C2422;
+  --sk-muted:#6B756F;
+  --sk-line:#E1DED4;
+  --sk-accent:#0F6B54;
+  --sk-accent-ink:#FFFFFF;
+  --sk-accent-soft:#E3F1EA;
+  --sk-error:#B8452B;
+  --sk-error-soft:#FBEAE4;
+  --sk-shadow: 0 1px 2px rgba(28,36,34,.04), 0 8px 24px -12px rgba(28,36,34,.18);
+  --sk-f-display:'Schibsted Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --sk-f-body:'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --sk-f-mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --sk-motion-fast:160ms;
+  --sk-motion-med:260ms;
+  --sk-ease: cubic-bezier(.22,.61,.36,1);
+
+  font-family: var(--sk-f-body);
+  color: var(--sk-ink);
+  width: 100%;
+  max-width: 640px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sk-widget-root:not([data-sk-theme="light"]) {
+    --sk-paper:#12181B;
+    --sk-surface:#1A2225;
+    --sk-surface-2:#202A2D;
+    --sk-ink:#EDEFEC;
+    --sk-muted:#9AACA4;
+    --sk-line:#2B3538;
+    --sk-accent:#35C79A;
+    --sk-accent-ink:#06110D;
+    --sk-accent-soft:#16332A;
+    --sk-error:#FF8B67;
+    --sk-error-soft:#3A1F17;
+    --sk-shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+}
+.sk-widget-root[data-sk-theme="dark"] {
+  --sk-paper:#12181B;
+  --sk-surface:#1A2225;
+  --sk-surface-2:#202A2D;
+  --sk-ink:#EDEFEC;
+  --sk-muted:#9AACA4;
+  --sk-line:#2B3538;
+  --sk-accent:#35C79A;
+  --sk-accent-ink:#06110D;
+  --sk-accent-soft:#16332A;
+  --sk-error:#FF8B67;
+  --sk-error-soft:#3A1F17;
+  --sk-shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk-widget-root { --sk-motion-fast:1ms; --sk-motion-med:1ms; }
+}
+
+.sk-widget-root *, .sk-widget-root *::before, .sk-widget-root *::after { box-sizing: border-box; }
+.sk-widget-root button, .sk-widget-root input, .sk-widget-root textarea { font-family: inherit; }
+.sk-widget-root :focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px; border-radius: 4px; }
+
+.sk-mono { font-family: var(--sk-f-mono); font-variant-numeric: tabular-nums; }
+
+.sk-widget {
+  background: var(--sk-surface);
+  border: 1px solid var(--sk-line);
+  border-radius: 16px;
+  box-shadow: var(--sk-shadow);
+  overflow: hidden;
+}
+.sk-widget-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--sk-line); }
+.sk-widget-head .sk-biz { font-family: var(--sk-f-display); font-weight: 700; font-size: 16.5px; }
+.sk-widget-head .sk-sub { color: var(--sk-muted); font-size: 12.5px; margin-top: 2px; }
+
+.sk-steps { display: flex; gap: 6px; padding: 12px 20px 0; }
+.sk-steps .sk-seg { flex: 1; height: 4px; border-radius: 99px; background: var(--sk-line); }
+.sk-steps .sk-seg.sk-done { background: var(--sk-accent); }
+.sk-steps .sk-seg.sk-current { background: var(--sk-accent); opacity: .65; }
+
+.sk-panel { padding: 18px 20px 22px; animation: sk-panelIn var(--sk-motion-med) var(--sk-ease); }
+@keyframes sk-panelIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
+.sk-panel h3 { font-family: var(--sk-f-display); font-size: 17px; margin: 0 0 4px; text-wrap: balance; }
+.sk-panel .sk-hint { color: var(--sk-muted); font-size: 13px; margin: 0 0 14px; }
+
+.sk-resource-list { display: flex; flex-direction: column; gap: 8px; }
+.sk-resource-card {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 13px 14px; border: 1px solid var(--sk-line); border-radius: 11px; background: var(--sk-surface);
+  cursor: pointer; text-align: left; width: 100%; color: inherit;
+  transition: border-color var(--sk-motion-fast) var(--sk-ease), background var(--sk-motion-fast) var(--sk-ease);
+}
+.sk-resource-card:hover { border-color: var(--sk-accent); background: var(--sk-accent-soft); }
+.sk-resource-card .sk-name { font-weight: 600; font-size: 14px; display: block; }
+.sk-resource-card .sk-meta { color: var(--sk-muted); font-size: 12.5px; margin-top: 2px; display: block; }
+.sk-resource-card[disabled] { opacity: .55; cursor: not-allowed; }
+.sk-badge-full {
+  font-family: var(--sk-f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--sk-error); background: var(--sk-error-soft); padding: 3px 7px; border-radius: 6px; flex: none;
+}
+
+.sk-day-rail { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 12px; }
+.sk-day-chip {
+  flex: none; min-width: 74px; padding: 9px 10px; border-radius: 11px; border: 1px solid var(--sk-line);
+  background: var(--sk-surface); cursor: pointer; text-align: center; color: inherit;
+  transition: border-color var(--sk-motion-fast) var(--sk-ease), background var(--sk-motion-fast) var(--sk-ease), color var(--sk-motion-fast) var(--sk-ease);
+}
+.sk-day-chip .sk-dow { font-family: var(--sk-f-mono); font-size: 10px; color: var(--sk-muted); text-transform: uppercase; }
+.sk-day-chip .sk-dnum { font-family: var(--sk-f-display); font-weight: 700; font-size: 16px; margin-top: 1px; }
+.sk-day-chip.sk-active { border-color: var(--sk-accent); background: var(--sk-accent); }
+.sk-day-chip.sk-active .sk-dow, .sk-day-chip.sk-active .sk-dnum { color: var(--sk-accent-ink); }
+
+.sk-time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px,1fr)); gap: 8px; }
+.sk-time-btn {
+  font-family: var(--sk-f-mono); font-size: 12.5px; padding: 10px 6px; border-radius: 9px;
+  border: 1px solid var(--sk-line); background: var(--sk-surface); cursor: pointer; color: var(--sk-ink);
+  transition: border-color var(--sk-motion-fast) var(--sk-ease), background var(--sk-motion-fast) var(--sk-ease), color var(--sk-motion-fast) var(--sk-ease);
+}
+.sk-time-btn:hover { border-color: var(--sk-accent); }
+.sk-time-btn.sk-selected { background: var(--sk-accent); border-color: var(--sk-accent); color: var(--sk-accent-ink); font-weight: 600; }
+.sk-time-btn.sk-removed { text-decoration: line-through; opacity: .35; pointer-events: none; }
+
+.sk-field { margin-bottom: 13px; }
+.sk-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+.sk-field .sk-req { color: var(--sk-error); }
+.sk-field input, .sk-field textarea {
+  width: 100%; font-family: var(--sk-f-body); font-size: 14px; padding: 10px 12px;
+  border: 1px solid var(--sk-line); border-radius: 9px; background: var(--sk-surface); color: var(--sk-ink);
+}
+.sk-field input:focus, .sk-field textarea:focus { border-color: var(--sk-accent); }
+.sk-field.sk-invalid input { border-color: var(--sk-error); }
+.sk-field .sk-err { color: var(--sk-error); font-size: 11.5px; margin-top: 4px; display: none; }
+.sk-field.sk-invalid .sk-err { display: block; }
+.sk-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.sk-stepper { display: flex; align-items: center; gap: 12px; }
+.sk-stepper button {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--sk-line); background: var(--sk-surface);
+  font-size: 16px; cursor: pointer; color: var(--sk-ink);
+}
+.sk-stepper .sk-n { font-family: var(--sk-f-mono); font-size: 15px; min-width: 20px; text-align: center; }
+
+.sk-summary { background: var(--sk-surface-2); border-radius: 11px; padding: 13px 14px; margin: 14px 0; font-size: 13px; }
+.sk-summary .sk-line { display: flex; justify-content: space-between; padding: 3px 0; gap: 10px; }
+.sk-summary .sk-k { color: var(--sk-muted); }
+.sk-summary .sk-v { font-family: var(--sk-f-mono); font-weight: 500; text-align: right; }
+
+.sk-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 16px; border-radius: 11px; border: 0; cursor: pointer;
+  font-family: var(--sk-f-display); font-weight: 600; font-size: 14.5px;
+  background: var(--sk-accent); color: var(--sk-accent-ink);
+  transition: transform var(--sk-motion-fast) var(--sk-ease), opacity var(--sk-motion-fast) var(--sk-ease);
+}
+.sk-btn:hover { opacity: .92; }
+.sk-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.sk-spinner {
+  width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35);
+  border-top-color: currentColor; animation: sk-spin .8s linear infinite; flex: none;
+}
+@media (prefers-reduced-motion: reduce) { .sk-spinner { animation: none; } }
+@keyframes sk-spin { to { transform: rotate(360deg); } }
+
+.sk-banner {
+  display: flex; gap: 10px; align-items: flex-start; padding: 11px 13px; border-radius: 10px;
+  font-size: 12.5px; margin-bottom: 14px; background: var(--sk-error-soft); color: var(--sk-error);
+}
+
+.sk-empty, .sk-success { text-align: center; padding: 26px 10px 8px; }
+.sk-empty .sk-glyph, .sk-success .sk-glyph {
+  width: 52px; height: 52px; border-radius: 50%; margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.sk-empty .sk-glyph { background: var(--sk-surface-2); }
+.sk-success .sk-glyph { background: var(--sk-accent-soft); color: var(--sk-accent); }
+.sk-empty h3, .sk-success h3 { font-family: var(--sk-f-display); margin-bottom: 6px; }
+.sk-empty p, .sk-success p { color: var(--sk-muted); font-size: 13px; max-width: 34ch; margin: 0 auto 16px; }
+
+.sk-confo { font-family: var(--sk-f-mono); font-size: 15px; letter-spacing: .06em; background: var(--sk-surface-2); border-radius: 9px; padding: 9px 14px; display: inline-block; margin-bottom: 14px; }
+.sk-success-detail { text-align: left; background: var(--sk-surface-2); border-radius: 11px; padding: 14px 15px; font-size: 13px; margin-top: 6px; }
+.sk-success-note { font-size: 12px; color: var(--sk-muted); margin-top: 14px; line-height: 1.55; }
+
+.sk-back {
+  display: inline-flex; align-items: center; gap: 5px; background: none; border: 0; color: var(--sk-muted);
+  font-size: 12.5px; cursor: pointer; padding: 0; margin-bottom: 12px; font-family: var(--sk-f-body);
+}
+.sk-back:hover { color: var(--sk-ink); }
+
+/* Honeypot — invisible to a real visitor, present in the DOM for bots. */
+.sk-hp { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; overflow: hidden; }
+
+.sk-loading { text-align: center; padding: 24px 10px 6px; }
+.sk-loading .sk-spin-lg {
+  width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--sk-line); border-top-color: var(--sk-accent);
+  margin: 0 auto 14px; animation: sk-spin 1s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .sk-loading .sk-spin-lg { animation: none; } }
