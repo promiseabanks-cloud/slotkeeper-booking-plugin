@@ -4,7 +4,7 @@ Tags: booking, appointments, reservations, rentals, classes
 Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.0
-Stable tag: 0.6.0
+Stable tag: 0.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,17 @@ To enable WhatsApp or Paystack, add the relevant constants to `wp-config.php`
 real key values anywhere).
 
 == Changelog ==
+
+= 0.7.0 =
+* Service categories: resources now carry a category (DB v7, sk_resources.category).
+  The booking widget groups styles under a category and reveals them in a
+  dropdown — pick a category, then the style within it — instead of one long
+  flat list. Editable per resource on the Resources screen and set by the
+  Prime Precision seeder.
+* Booking widget: premium UI pass — Cormorant Garamond / Raleway, ink pill
+  action button with an accent icon, underline inputs, a category accordion,
+  and no italics or gold-on-text (gold is reserved for icons, focus rings and
+  hover borders).
 
 = 0.6.0 =
 * Google Calendar sync (built, previously only a stub). A confirmed booking is

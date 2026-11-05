@@ -134,6 +134,7 @@ class Booking_Rest_Controller {
 			'id'               => (int) $r['id'],
 			'type'             => $r['type'],
 			'name'             => $r['name'],
+			'category'         => $r['category'] ?? null,
 			'capacity'         => (int) $r['capacity'],
 			'price'            => $price,
 			'requires_payment' => $requires_payment,

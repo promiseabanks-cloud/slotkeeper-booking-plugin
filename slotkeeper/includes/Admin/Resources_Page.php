@@ -73,6 +73,10 @@ class Resources_Page {
 							<th scope="row"><label for="sk_res_name"><?php esc_html_e( 'Name', 'slotkeeper' ); ?></label></th>
 							<td><input type="text" id="sk_res_name" name="name" class="regular-text" required placeholder="<?php esc_attr_e( 'e.g. Box Braids, Table 4, Canopy Tent, Yoga — Sat 9am', 'slotkeeper' ); ?>"></td>
 						</tr>
+						<tr>
+							<th scope="row"><label for="sk_res_category"><?php esc_html_e( 'Category', 'slotkeeper' ); ?></label></th>
+							<td><input type="text" id="sk_res_category" name="category" class="regular-text" placeholder="<?php esc_attr_e( 'e.g. Boho Braids — groups styles in the booking widget', 'slotkeeper' ); ?>"></td>
+						</tr>
 						<?php if ( ! empty( $providers ) ) : ?>
 						<tr>
 							<th scope="row"><label for="sk_res_provider"><?php esc_html_e( 'Provider', 'slotkeeper' ); ?></label></th>
@@ -171,6 +175,7 @@ class Resources_Page {
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Name', 'slotkeeper' ); ?></th>
+						<th><?php esc_html_e( 'Category', 'slotkeeper' ); ?></th>
 						<th><?php esc_html_e( 'Type', 'slotkeeper' ); ?></th>
 						<th><?php esc_html_e( 'Capacity', 'slotkeeper' ); ?></th>
 						<th><?php esc_html_e( 'Payment', 'slotkeeper' ); ?></th>
@@ -180,11 +185,12 @@ class Resources_Page {
 				</thead>
 				<tbody>
 					<?php if ( empty( $resources ) ) : ?>
-						<tr><td colspan="6"><?php esc_html_e( 'No resources yet.', 'slotkeeper' ); ?></td></tr>
+						<tr><td colspan="7"><?php esc_html_e( 'No resources yet.', 'slotkeeper' ); ?></td></tr>
 					<?php endif; ?>
 					<?php foreach ( $resources as $resource ) : ?>
 						<tr>
 							<td><?php echo esc_html( $resource['name'] ); ?></td>
+							<td><?php echo esc_html( $resource['category'] ?? '' ); ?></td>
 							<td><?php echo esc_html( $resource['type'] ); ?></td>
 							<td><?php echo esc_html( $resource['capacity'] ); ?></td>
 							<td>
@@ -230,6 +236,7 @@ class Resources_Page {
 		$data = array(
 			'type'             => $resource_type,
 			'name'             => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
+			'category'         => sanitize_text_field( wp_unslash( $_POST['category'] ?? '' ) ) ?: null,
 			'description'      => sanitize_textarea_field( wp_unslash( $_POST['description'] ?? '' ) ),
 			'provider_id'      => ! empty( $_POST['provider_id'] ) ? absint( $_POST['provider_id'] ) : null,
 			'capacity'         => max( 1, absint( $_POST['capacity'] ?? 1 ) ),

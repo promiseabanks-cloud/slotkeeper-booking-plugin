@@ -143,15 +143,20 @@ $created = 0;
 $updated = 0;
 foreach ( $catalog['services'] as $svc ) {
 	$source_id = (int) $svc['source_id'];
+	// A service is active unless the catalog marks it inactive — the inactive
+	// ones are the FluentBooking export's $0 phantom twins and exact repeats,
+	// kept in the DB for traceability but hidden from the booking widget.
+	$is_active = ! array_key_exists( 'active', $svc ) || false !== $svc['active'];
 	$fields    = array(
 		'type'             => 'staff',
 		'name'             => (string) $svc['name'],
+		'category'         => isset( $svc['category'] ) ? (string) $svc['category'] : null,
 		'provider_id'      => $provider_id,
 		'capacity'         => 1,
 		'duration_minutes' => (int) $svc['duration_minutes'],
 		'price_minor'      => isset( $svc['price_minor'] ) ? ( $svc['price_minor'] === null ? null : (int) $svc['price_minor'] ) : null,
 		'requires_payment' => ! empty( $svc['requires_payment'] ) ? 1 : 0,
-		'status'           => 'active',
+		'status'           => $is_active ? 'active' : 'inactive',
 		'meta'             => array(
 			'seed_source_id'       => $source_id,
 			'source_woo_product_id' => $svc['source_woo_product_id'] ?? null,

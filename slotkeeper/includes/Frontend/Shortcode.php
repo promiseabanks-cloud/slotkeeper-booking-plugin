@@ -73,7 +73,7 @@ class Shortcode {
 		// loads them (WordPress de-dupes identical Google Fonts requests).
 		wp_enqueue_style(
 			'slotkeeper-widget-fonts',
-			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Raleway:wght@400;500;600;700&display=swap',
+			'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Raleway:wght@400;500;600;700&display=swap',
 			array(),
 			null
 		);
@@ -86,7 +86,15 @@ class Shortcode {
 	 */
 	private function strings(): array {
 		return array(
-			'choose_title'      => __( "Choose what you're booking", 'slotkeeper' ),
+			'choose_title'      => __( 'Choose your style', 'slotkeeper' ),
+			'choose_hint'       => __( 'Pick a category, then choose your style.', 'slotkeeper' ),
+			'eyebrow_choose'    => __( 'Step 1 of 3', 'slotkeeper' ),
+			'eyebrow_when'      => __( 'Step 2 of 3', 'slotkeeper' ),
+			'eyebrow_details'   => __( 'Step 3 of 3', 'slotkeeper' ),
+			'from_label'        => __( 'from', 'slotkeeper' ),
+			'free_label'        => __( 'Free', 'slotkeeper' ),
+			'style_one'         => __( 'style', 'slotkeeper' ),
+			'style_many'        => __( 'styles', 'slotkeeper' ),
 			'when_title'        => __( 'Pick a time', 'slotkeeper' ),
 			'range_title'       => __( 'Pick your dates', 'slotkeeper' ),
 			'details_title'     => __( 'Your details', 'slotkeeper' ),

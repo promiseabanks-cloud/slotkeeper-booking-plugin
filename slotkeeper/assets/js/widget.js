@@ -30,6 +30,7 @@
 		this.state = {
 			screen: 'loading',
 			resources: [],
+			openCategory: null,
 			resource: null,
 			days: [],
 			dayIdx: 0,
@@ -235,16 +236,75 @@
 		}
 	};
 
+	// Preferred display order for salon categories; anything unlisted falls to
+	// the end, alphabetically. Categories themselves come from the data
+	// (resource.category) — this only decides the order they're shown in.
+	var CATEGORY_ORDER = [
+		'Knotless Braids', 'Boho Braids', 'Box Braids', 'Cornrows', 'Twists',
+		'Bantu Knots', 'Locs', 'Weaves & Sew-Ins', 'Kids', 'Consultation & Extras',
+	];
+
+	Widget.prototype.groupByCategory = function ( resources ) {
+		var map = {};
+		resources.forEach( function ( r ) {
+			var c = r.category || 'Styles';
+			( map[ c ] = map[ c ] || [] ).push( r );
+		} );
+		return Object.keys( map ).sort( function ( a, b ) {
+			var ia = CATEGORY_ORDER.indexOf( a ), ib = CATEGORY_ORDER.indexOf( b );
+			if ( ia === -1 && ib === -1 ) { return a.localeCompare( b ); }
+			if ( ia === -1 ) { return 1; }
+			if ( ib === -1 ) { return -1; }
+			return ia - ib;
+		} ).map( function ( c ) {
+			var items = map[ c ];
+			var prices = items.map( function ( r ) { return r.price; } ).filter( function ( p ) { return p; } );
+			return { category: c, items: items, minPrice: prices.length ? Math.min.apply( null, prices ) : null };
+		} );
+	};
+
+	Widget.prototype.styleMeta = function ( r ) {
+		var parts = [];
+		if ( r.duration_minutes ) { parts.push( r.duration_minutes + ' min' ); }
+		if ( r.price ) { parts.push( money( r.price, this.cfg.currency ) ); }
+		else if ( ! r.requires_payment ) { parts.push( this.t.free_label || 'Free' ); }
+		return parts.join( ' · ' );
+	};
+
 	Widget.prototype.screenChoose = function () {
+		var self = this;
 		var t = this.t;
-		var cards = this.state.resources.map( function ( r ) {
-			var full = r.type === 'class_session' && r.remaining === 0;
-			return '<button type="button" class="sk-resource-card" data-rid="' + r.id + '" ' + ( full ? 'disabled' : '' ) + '>' +
-				'<span><span class="sk-name">' + esc( r.name ) + '</span><span class="sk-meta">' + esc( r.meta || '' ) + '</span></span>' +
-				( full ? '<span class="sk-badge-full">Full</span>' : '<span>›</span>' ) +
-			'</button>';
+		var groups = this.groupByCategory( this.state.resources );
+		var single = groups.length === 1;
+
+		var rows = groups.map( function ( g ) {
+			var isOpen = single || g.category === self.state.openCategory;
+			var count = g.items.length + ' ' + ( g.items.length === 1 ? ( t.style_one || 'style' ) : ( t.style_many || 'styles' ) );
+			var aside = esc( count ) + ( g.minPrice ? ' · ' + esc( ( t.from_label || 'from' ) + ' ' + money( g.minPrice, self.cfg.currency ) ) : '' );
+
+			var head = single ? '' :
+				'<button type="button" class="sk-cat-head' + ( isOpen ? ' sk-open' : '' ) + '" data-cat="' + esc( g.category ) + '" aria-expanded="' + ( isOpen ? 'true' : 'false' ) + '">' +
+					'<span class="sk-cat-name">' + esc( g.category ) + '</span>' +
+					'<span class="sk-cat-aside"><span class="sk-cat-meta">' + aside + '</span><span class="sk-chev" aria-hidden="true"></span></span>' +
+				'</button>';
+
+			var body = '';
+			if ( isOpen ) {
+				var styles = g.items.map( function ( r ) {
+					return '<button type="button" class="sk-style-row" data-rid="' + r.id + '">' +
+						'<span class="sk-style-name">' + esc( r.name ) + '</span>' +
+						'<span class="sk-style-aside"><span class="sk-style-meta">' + esc( self.styleMeta( r ) ) + '</span><span class="sk-arrow" aria-hidden="true"></span></span>' +
+					'</button>';
+				} ).join( '' );
+				body = '<div class="sk-cat-body">' + styles + '</div>';
+			}
+			return '<div class="sk-cat' + ( isOpen ? ' sk-open' : '' ) + '">' + head + body + '</div>';
 		} ).join( '' );
-		return '<h3>' + esc( t.choose_title ) + '</h3><div class="sk-resource-list">' + cards + '</div>';
+
+		return '<p class="sk-eyebrow">' + esc( t.eyebrow_choose || 'Step 1 of 3' ) + '</p>' +
+			'<h3>' + esc( t.choose_title ) + '</h3>' +
+			'<p class="sk-hint">' + esc( t.choose_hint || 'Pick a category, then choose your style.' ) + '</p>' +
+			'<div class="sk-cat-list">' + rows + '</div>';
 	};
 
 	Widget.prototype.screenWhen = function () {
@@ -278,7 +338,7 @@
 			return '<button type="button" class="sk-time-btn ' + ( slot.start === s.time ? 'sk-selected' : '' ) + '" data-start="' + esc( slot.start ) + '" data-end="' + esc( slot.end ) + '">' + esc( slot.label ) + '</button>';
 		} ).join( '' );
 
-		return back + '<h3>' + esc( t.when_title ) + '</h3><p class="sk-hint">' + esc( r.name ) + ' · ' + esc( r.meta || '' ) + '</p>' +
+		return back + '<p class="sk-eyebrow">' + esc( t.eyebrow_when || '' ) + '</p><h3>' + esc( t.when_title ) + '</h3><p class="sk-hint">' + esc( r.name ) + ' · ' + esc( this.styleMeta( r ) ) + '</p>' +
 			'<div class="sk-day-rail">' + chips + '</div>' +
 			'<div class="sk-time-grid">' + times + '</div>' +
 			( 'table' === r.type ? this.seatStepperHtml( t.party_size, r.capacity ) : '' ) +
@@ -315,6 +375,7 @@
 		}
 
 		return '<button type="button" class="sk-back" data-action="back-from-details">' + esc( t.back ) + '</button>' +
+			'<p class="sk-eyebrow">' + esc( t.eyebrow_details || '' ) + '</p>' +
 			'<h3>' + esc( t.details_title ) + '</h3>' +
 			'<div class="sk-field"><label>' + esc( t.field_name ) + ' <span class="sk-req">*</span></label><input type="text" id="sk-f-name" value="' + esc( s.customer.name ) + '"></div>' +
 			'<div class="sk-field"><label>' + esc( t.field_email ) + ' <span class="sk-req">*</span></label><input type="email" id="sk-f-email" value="' + esc( s.customer.email ) + '"></div>' +
@@ -366,7 +427,13 @@
 			for ( var i = 0; i < els.length; i++ ) { els[ i ].addEventListener( evt, fn ); }
 		}
 
-		on( '.sk-resource-card:not([disabled])', 'click', function () {
+		on( '.sk-cat-head', 'click', function () {
+			var c = this.getAttribute( 'data-cat' );
+			self.state.openCategory = ( self.state.openCategory === c ) ? null : c;
+			self.render();
+		} );
+
+		on( '.sk-style-row', 'click', function () {
 			var id = parseInt( this.getAttribute( 'data-rid' ), 10 );
 			var r = self.state.resources.filter( function ( x ) { return x.id === id; } )[ 0 ];
 			if ( r ) { self.selectResource( r ); }
