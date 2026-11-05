@@ -6,21 +6,27 @@
  */
 
 .sk-widget-root {
-  --sk-paper:#FBFAF7;
+  /* Colours inherit the host theme's tokens when it defines them (the salon
+   * theme sets --accent/--ink/--bg/--line on :root); the fallbacks are the
+   * Prime Precision palette so the widget still looks right on its own. */
+  --sk-paper: var(--bg, #FBF9F6);
   --sk-surface:#FFFFFF;
-  --sk-surface-2:#F3F1EA;
-  --sk-ink:#1C2422;
-  --sk-muted:#6B756F;
-  --sk-line:#E1DED4;
-  --sk-accent:#0F6B54;
-  --sk-accent-ink:#FFFFFF;
-  --sk-accent-soft:#E3F1EA;
+  --sk-surface-2:#F3EDE4;
+  --sk-ink: var(--ink, #220E06);
+  --sk-muted:#7A6B5E;
+  --sk-line: var(--line, #E5E1DB);
+  --sk-accent: var(--accent, #C69362);
+  --sk-accent-ink: var(--ink, #220E06); /* dark text on the gold accent — gold is too light for white */
+  --sk-accent-soft: rgba(198,147,98,.14);
   --sk-error:#B8452B;
-  --sk-error-soft:#FBEAE4;
-  --sk-shadow: 0 1px 2px rgba(28,36,34,.04), 0 8px 24px -12px rgba(28,36,34,.18);
-  --sk-f-display:'Schibsted Grotesk', 'Segoe UI', system-ui, sans-serif;
-  --sk-f-body:'Hanken Grotesk', 'Segoe UI', system-ui, sans-serif;
-  --sk-f-mono:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --sk-error-soft:#F7E8E2;
+  /* Primary action = the theme's pill .btn: dark ink fill, light text. */
+  --sk-btn-bg: var(--ink, #220E06);
+  --sk-btn-ink: var(--bg, #FBF9F6);
+  --sk-shadow: none;
+  --sk-f-display:'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sk-f-body:'Raleway', 'Segoe UI', system-ui, sans-serif;
+  --sk-f-mono:'Raleway', 'Segoe UI', system-ui, sans-serif;
   --sk-motion-fast:160ms;
   --sk-motion-med:260ms;
   --sk-ease: cubic-bezier(.22,.61,.36,1);
@@ -72,25 +78,26 @@
 
 .sk-mono { font-family: var(--sk-f-mono); font-variant-numeric: tabular-nums; }
 
+/* No outer chrome — the widget sits inside the theme's white 24px card. */
 .sk-widget {
-  background: var(--sk-surface);
-  border: 1px solid var(--sk-line);
-  border-radius: 16px;
-  box-shadow: var(--sk-shadow);
-  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
 }
-.sk-widget-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--sk-line); }
-.sk-widget-head .sk-biz { font-family: var(--sk-f-display); font-weight: 700; font-size: 16.5px; }
-.sk-widget-head .sk-sub { color: var(--sk-muted); font-size: 12.5px; margin-top: 2px; }
+.sk-widget-head { padding: 0 0 14px; border-bottom: 1px solid var(--sk-line); }
+.sk-widget-head .sk-biz { font-family: var(--sk-f-display); font-weight: 700; font-size: 23px; line-height: 1.1; }
+.sk-widget-head .sk-sub { color: var(--sk-muted); font-size: 13px; margin-top: 3px; }
 
-.sk-steps { display: flex; gap: 6px; padding: 12px 20px 0; }
+.sk-steps { display: flex; gap: 6px; padding: 14px 0 0; }
 .sk-steps .sk-seg { flex: 1; height: 4px; border-radius: 99px; background: var(--sk-line); }
 .sk-steps .sk-seg.sk-done { background: var(--sk-accent); }
 .sk-steps .sk-seg.sk-current { background: var(--sk-accent); opacity: .65; }
 
-.sk-panel { padding: 18px 20px 22px; animation: sk-panelIn var(--sk-motion-med) var(--sk-ease); }
+.sk-panel { padding: 18px 0 4px; animation: sk-panelIn var(--sk-motion-med) var(--sk-ease); }
 @keyframes sk-panelIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: translateY(0);} }
-.sk-panel h3 { font-family: var(--sk-f-display); font-size: 17px; margin: 0 0 4px; text-wrap: balance; }
+.sk-panel h3 { font-family: var(--sk-f-display); font-weight: 700; font-size: 23px; line-height: 1.12; margin: 0 0 5px; text-wrap: balance; }
 .sk-panel .sk-hint { color: var(--sk-muted); font-size: 13px; margin: 0 0 14px; }
 
 .sk-resource-list { display: flex; flex-direction: column; gap: 8px; }
@@ -133,12 +140,15 @@
 .sk-field { margin-bottom: 13px; }
 .sk-field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
 .sk-field .sk-req { color: var(--sk-error); }
+/* Underline fields, matching the theme's contact form. */
 .sk-field input, .sk-field textarea {
-  width: 100%; font-family: var(--sk-f-body); font-size: 14px; padding: 10px 12px;
-  border: 1px solid var(--sk-line); border-radius: 9px; background: var(--sk-surface); color: var(--sk-ink);
+  width: 100%; font-family: var(--sk-f-body); font-size: 14.5px; padding: 8px 2px;
+  border: 0; border-bottom: 1px solid var(--sk-line); border-radius: 0;
+  background: transparent; color: var(--sk-ink);
+  transition: border-color var(--sk-motion-fast) var(--sk-ease);
 }
-.sk-field input:focus, .sk-field textarea:focus { border-color: var(--sk-accent); }
-.sk-field.sk-invalid input { border-color: var(--sk-error); }
+.sk-field input:focus, .sk-field textarea:focus { outline: none; border-bottom-color: var(--sk-accent); box-shadow: 0 1px 0 0 var(--sk-accent); }
+.sk-field.sk-invalid input, .sk-field.sk-invalid textarea { border-bottom-color: var(--sk-error); box-shadow: none; }
 .sk-field .sk-err { color: var(--sk-error); font-size: 11.5px; margin-top: 4px; display: none; }
 .sk-field.sk-invalid .sk-err { display: block; }
 .sk-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -155,15 +165,16 @@
 .sk-summary .sk-k { color: var(--sk-muted); }
 .sk-summary .sk-v { font-family: var(--sk-f-mono); font-weight: 500; text-align: right; }
 
+/* Pill CTA matching the theme's .btn: dark ink fill, light text. */
 .sk-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 13px 16px; border-radius: 11px; border: 0; cursor: pointer;
-  font-family: var(--sk-f-display); font-weight: 600; font-size: 14.5px;
-  background: var(--sk-accent); color: var(--sk-accent-ink);
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; padding: 14px 20px; border-radius: 999px; border: 0; cursor: pointer;
+  font-family: var(--sk-f-body); font-weight: 600; font-size: 14.5px; letter-spacing: .01em;
+  background: var(--sk-btn-bg); color: var(--sk-btn-ink);
   transition: transform var(--sk-motion-fast) var(--sk-ease), opacity var(--sk-motion-fast) var(--sk-ease);
 }
-.sk-btn:hover { opacity: .92; }
-.sk-btn:disabled { opacity: .55; cursor: not-allowed; }
+.sk-btn:hover { opacity: .9; transform: translateY(-1px); }
+.sk-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 
 .sk-spinner {
   width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.35);
