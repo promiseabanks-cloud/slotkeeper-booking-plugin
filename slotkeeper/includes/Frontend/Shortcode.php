@@ -40,9 +40,18 @@ class Shortcode {
 
 		$this->enqueue_assets();
 
+		// Preselect a resource. A `resource_id` attribute wins; otherwise honor
+		// a `?sk_resource=<id>` query arg, which lets a "Book this style" link
+		// from elsewhere on the site (e.g. a price list) land on one style.
+		// Read-only display preselection, so no nonce — the id is just a hint.
+		$resource_id = $atts['resource_id'] ? (int) $atts['resource_id'] : 0;
+		if ( ! $resource_id && isset( $_GET['sk_resource'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only preselect hint, not a state change.
+			$resource_id = absint( wp_unslash( $_GET['sk_resource'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
 		$config = array(
 			'restBase'    => esc_url_raw( rest_url( 'slotkeeper/v1' ) ),
-			'resourceId'  => $atts['resource_id'] ? (int) $atts['resource_id'] : null,
+			'resourceId'  => $resource_id ?: null,
 			'type'        => $atts['type'] ? sanitize_key( $atts['type'] ) : null,
 			'currency'    => \SlotKeeper\Support\Settings::get( 'currency', 'NGN' ),
 			'i18n'        => $this->strings(),
